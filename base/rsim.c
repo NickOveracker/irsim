@@ -711,8 +711,9 @@ private int display()
  * Display a bit vector.
  */
 
-private int dvec(b)
+private int dvec(b, flag)
   register bptr  b;
+  char           *flag;		/* unused: apply() passes its argument */
 {
     register int  i;
     char bits[250];
@@ -859,7 +860,7 @@ private void pnwatchlist()
     /* print value of each watched bit vector. */
 
     for (w = wvlist; w != NULL; w = w->next)
-	dvec((bptr)w->inode);
+	dvec((bptr)w->inode, (char *) NULL);
 
     /* now print value of each watched node. */
 
@@ -2227,7 +2228,7 @@ public void disp_watch_vec( which )
 	    if( b->nodes[i]->c.time == cur_delta )
 		break;
 	if( i >= 0 )
-	    (void) dvec( b );
+	    (void) dvec( b, (char *) NULL );
       }
     lprintf( stdout, "\n" );
   }
@@ -3283,8 +3284,9 @@ private void cpath( n, level )
       }
   }
 
-private int do_cpath( n )
+private int do_cpath( n, flag )
   nptr  n;
+  char  *flag;		/* unused: apply() passes its argument */
   {
     lprintf( stdout, "critical path for last transition of %s:\n", pnode(n) );
     UnAlias( n );
