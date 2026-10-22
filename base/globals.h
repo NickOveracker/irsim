@@ -136,7 +136,7 @@ extern void NewModel( /*  nmodel */ );
 extern void NewEdge( /*  nd, ev */ );
 extern void DeleteNextEdge( /*  nd */ );
 extern void FlushHist( /*  ftime */ );
-extern int backToTime( /*  nd */ );
+extern int backToTime( /*  nd, arg */ );
 
 	/* EXPORTS FROM hist_io.c */
 

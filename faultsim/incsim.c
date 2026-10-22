@@ -1713,8 +1713,9 @@ private void incstep( stop_time )
   }
 
 
-private int fix_inc_nodes( nd )
+private int fix_inc_nodes( nd, arg )
   register nptr  nd;
+  char  *arg;		/* unused: walk_net() passes its argument */
   {
     register hptr  h;
     register lptr  l;
@@ -1898,8 +1899,9 @@ public void end_faultsim()
   }
 
 
-private int fix_fault_nodes( nd )
+private int fix_fault_nodes( nd, arg )
   register nptr  nd;
+  char  *arg;		/* unused: walk_net() passes its argument */
   {
     register lptr  l;
 

@@ -341,8 +341,9 @@ private int seed_faults( p_seed )
   }
 
 
-private int seed_fault( nd )
+private int seed_fault( nd, arg )
   nptr  nd;
+  char  *arg;		/* unused: walk_net() passes its argument */
   {
     if( nd->nflags & FAULT_ME )
       {
@@ -359,8 +360,9 @@ private int seed_fault( nd )
   }
 
 
-private int clear_node_flags( nd )
+private int clear_node_flags( nd, arg )
   nptr  nd;
+  char  *arg;		/* unused: walk_net() passes its argument */
   {
     nd->nflags &= ~(N_SEED0 | N_SEED1 | N_OBVIOUS0 | N_OBVIOUS1 | FAULT_ME);
     return( 0 );

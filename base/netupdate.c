@@ -1120,8 +1120,9 @@ private void input_changes( fin )
 /*
  * Mark any alias that points to a deleted node as deleted.
  */
-private int mark_del_alias( n )
+private int mark_del_alias( n, arg )
   register nptr  n;
+  char  *arg;		/* unused: walk_net() passes its argument */
   {
     register nptr  nd;
     register int   has_del = FALSE;

@@ -185,8 +185,9 @@ public void iinsert_once( n, list )
   }
 
 
-private	int clear_input( n )
+private	int clear_input( n, arg )
   register nptr  n;
+  char  *arg;		/* unused: walk_net() passes its argument */
   {
     if( not( n->nflags & POWER_RAIL ) )
 	n->nflags &= ~INPUT;

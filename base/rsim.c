@@ -1124,7 +1124,7 @@ private int sumcap()
 /*
  * Helper function for clearing the VISITED flag of the node 
  */
-private int clear_visited( nptr n )
+private int clear_visited( nptr n, char *arg )	/* arg: unused, from walk_net() */
 {
     n->nflags &= ~VISITED;
     return( 0 );
@@ -3016,8 +3016,9 @@ private int setlog()
 /*
  * Helper routine for printing capacitance and power totals.
  */
-private int capsummer( n )
+private int capsummer( n, arg )
   register nptr  n;
+  char  *arg;		/* unused: walk_net() passes its argument */
   {
     UnAlias( n );
 

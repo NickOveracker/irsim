@@ -352,8 +352,9 @@ public void FlushHist( ftime )
   }
 
 
-public int backToTime( nd )
+public int backToTime( nd, arg )
   register nptr  nd;
+  char           *arg;		/* unused: walk_net() passes its argument */
   {
     register hptr  h, p;
 
