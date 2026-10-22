@@ -1,5 +1,6 @@
 #!/bin/sh
-# Build IRSIM to WebAssembly (headless: no Tcl, no X11 analyzer, no threads).
+# Build IRSIM to WebAssembly (no Tcl, no X11 analyzer, no threads).  The analyzer is the
+# web one (analyzer/webana.c), and irsim/irsimweb.c adds an interactive session for the page.
 # Needs the Emscripten SDK on the PATH (source emsdk_env.sh). Writes wasm/irsim.js and wasm/irsim.wasm,
 # and copies them into wasm/demo/.
 set -e
@@ -12,12 +13,13 @@ DEFS='-DCAD_DIR="/irsim" -DBIN_DIR="/irsim" -DPACKAGE_NAME="irsim" -DPACKAGE_VER
  -DSHDLIB_EXT="" -DNDEBUG'
 SRCS="base/access.c base/binsim.c base/cad_dir.c base/config.c base/conn_list.c base/eval.c base/fio.c base/hist_io.c base/hist.c
  base/intr.c base/mem.c base/netupdate.c base/network.c base/newrstep.c base/nsubrs.c base/parallel.c base/prints.c base/rsim.c
- base/sched.c base/sim.c base/sstep.c base/stack.c base/tpos.c base/usage.c analyzer/noana.c faultsim/faultsim.c faultsim/incsim.c
- usersubckt/subckt.c usersubckt/user.c irsim/irsim.c"
+ base/sched.c base/sim.c base/sstep.c base/stack.c base/tpos.c base/usage.c analyzer/webana.c faultsim/faultsim.c faultsim/incsim.c
+ usersubckt/subckt.c usersubckt/user.c irsim/irsim.c irsim/irsimweb.c"
 emcc -std=gnu89 -w -O2 $DEFS -Ibase -Ianalyzer $SRCS -o wasm/irsim.js \
   -sMODULARIZE=1 -sEXPORT_NAME=createIrsim -sENVIRONMENT=web,worker,node \
   -sALLOW_MEMORY_GROWTH=1 -sINVOKE_RUN=0 -sEXIT_RUNTIME=1 \
-  -sEXPORTED_RUNTIME_METHODS=FS,callMain -sFORCE_FILESYSTEM=1
+  -sEXPORTED_RUNTIME_METHODS=FS,callMain,ccall,cwrap -sFORCE_FILESYSTEM=1 \
+  -sEXPORTED_FUNCTIONS=_main,_irsim_web_start_line,_irsim_web_command,_irsim_web_time,_irsim_web_units_per_ns,_irsim_web_nodes,_irsim_web_vectors,_irsim_web_history
 # The demo page loads the module from its own folder, and the technology file from lib/prm.
 cp wasm/irsim.js wasm/irsim.wasm wasm/demo/
 ls -la wasm/irsim.js wasm/irsim.wasm

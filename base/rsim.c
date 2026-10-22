@@ -4100,6 +4100,15 @@ public int start_analyzer(tkwind)
 /*
  * Clear the analyzer display list.
  */
+/*
+ * The list of vectors, for front ends that show it (the web analyzer).
+ */
+public Bits *GetVectorList()
+  {
+    return( blist );
+  }
+
+
 private int clear_analyzer()
   {
     if( analyzerON )
