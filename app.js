@@ -734,6 +734,13 @@ $("#top-menus").appendChild(menuBar([
     ["Project", projectMenu],
     ["Examples", Object.entries(EXAMPLES).map(([name, label]) => ({label, action: () => attempt(() => loadExample(name))}))],
     ["Windows", windowsMenu],
+    ["About", [
+        {label: "IRSIM license (GPL 2)", href: "https://github.com/NickOveracker/irsim/blob/wasm/COPYRIGHT"},
+        {label: "Emscripten runtime license (MIT)", href: "https://github.com/emscripten-core/emscripten/blob/main/LICENSE"},
+        "-",
+        {label: "Source code", href: "https://github.com/NickOveracker/irsim/tree/wasm"},
+    ]],
+    ["Ko-fi", "https://ko-fi.com/twentynine"],
 ], "Page menu", {onDone: home}));
 
 window.addEventListener("resize", () => analyzer.draw());
