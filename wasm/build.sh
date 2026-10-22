@@ -1,7 +1,7 @@
 #!/bin/sh
 # Build IRSIM to WebAssembly (headless: no Tcl, no X11 analyzer, no threads).
 # Needs the Emscripten SDK on the PATH (source emsdk_env.sh). Writes wasm/irsim.js and wasm/irsim.wasm,
-# and copies them, with the scmos100 parameter file, into wasm/demo/.
+# and copies them into wasm/demo/.
 set -e
 cd "$(dirname "$0")/.."
 DEFS='-DCAD_DIR="/irsim" -DBIN_DIR="/irsim" -DPACKAGE_NAME="irsim" -DPACKAGE_VERSION="9.7" -DIRSIM_VERSION="9.7" -DIRSIM_REVISION="121" -DIRSIM_DATE="wasm"
@@ -18,6 +18,6 @@ emcc -std=gnu89 -w -O2 $DEFS -Ibase -Ianalyzer $SRCS -o wasm/irsim.js \
   -sMODULARIZE=1 -sEXPORT_NAME=createIrsim -sENVIRONMENT=web,worker,node \
   -sALLOW_MEMORY_GROWTH=1 -sINVOKE_RUN=0 -sEXIT_RUNTIME=1 \
   -sEXPORTED_RUNTIME_METHODS=FS,callMain -sFORCE_FILESYSTEM=1
-# The demo page loads the module and a technology file from its own folder.
-cp wasm/irsim.js wasm/irsim.wasm lib/prm/scmos100.prm wasm/demo/
+# The demo page loads the module from its own folder, and the technology file from lib/prm.
+cp wasm/irsim.js wasm/irsim.wasm wasm/demo/
 ls -la wasm/irsim.js wasm/irsim.wasm

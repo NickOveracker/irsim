@@ -14,7 +14,8 @@ source /path/to/emsdk/emsdk_env.sh
 ```
 
 This writes `wasm/irsim.js` (a module factory named `createIrsim`) and `wasm/irsim.wasm`, about 210 KB, and copies
-them into `wasm/demo/` together with `lib/prm/scmos100.prm`.
+them into `wasm/demo/`, where they are committed so that the demo works on GitHub Pages. The demo reads its
+technology file from `lib/prm/scmos100.prm`.
 
 ## Using it
 
@@ -31,8 +32,9 @@ irsim.FS.writeFile("/circuit.sim", simText);
 irsim.callMain(["/tech.prm", "/circuit.sim"]);
 ```
 
-`run-node.js` does the same in Node.js. `demo/` is a small page that runs IRSIM in a Web Worker; serve the folder
-over HTTP (for example `python3 -m http.server`), since browsers don't start workers from `file://` pages.
+`run-node.js` does the same in Node.js. `demo/` is a small page that runs IRSIM in a Web Worker. Serve the
+repository root over HTTP (for example `python3 -m http.server`, then open `/wasm/demo/`), since browsers don't
+start workers from `file://` pages and the demo reads `lib/prm/` from two folders up.
 
 ## Checks
 

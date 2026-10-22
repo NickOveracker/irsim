@@ -30,7 +30,7 @@ button.primary { background:var(--accent); color:#fff; border-color:var(--accent
 <p>IRSIM 9.7 compiled to WebAssembly, running in a Web Worker. The circuits are Stixu's own IRSIM exports, passed in as text; nothing is uploaded.</p>
 <div class="bar">
   <select id="example"></select>
-  <button class="primary" id="run">Run</button>
+  <button class="primary" id="run" disabled>Run</button>
   <span id="status">Loading…</span>
 </div>
 <div class="row">
@@ -54,7 +54,7 @@ function load() {
 pick.onchange = load;
 load();
 
-fetch("scmos100.prm").then(r => r.text()).then(text => { prm = text; status.textContent = "Ready."; });
+fetch("../../lib/prm/scmos100.prm").then(r => r.text()).then(text => { prm = text; status.textContent = "Ready."; runButton.disabled = false; });
 
 worker.onmessage = function(event) {
     output.textContent = event.data.output;
