@@ -108,6 +108,12 @@ public nptr FindNode_TxtorPos( s )
     if( sscanf( &s[3], "%ld,%ld", &x, &y ) != 2 )
 	return( NULL );
 
+    /* Positions in the .sim file are in lambda, and are stored in	*/
+    /* centimicrons (see lconvert() in sim.c); convert these the same	*/
+    /* way, or no coordinate name would ever be found.			*/
+    x = (long) (int) (float) (x * LAMBDACM);
+    y = (long) (int) (float) (y * LAMBDACM);
+
     if( (t = FindTxtorPos( x, y )) == NULL )
 	return( NULL );
 
