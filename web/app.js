@@ -35,7 +35,7 @@ const BUILT_IN_PRMS = ["scmos100", "scmos30", "scmos35", "scmos50_3v", "scmos50_
 // Relative to this file rather than the page, so the address the page was opened with
 // (with or without a trailing slash, or from another page) doesn't matter.
 const here = path => new URL(path, import.meta.url);
-const PRM_URL = name => here(`../../lib/prm/${name}.prm`);
+const PRM_URL = name => here(`../lib/prm/${name}.prm`);
 
 let project = null;          // {name, files: [{path, data}], store, synced, setup: {prm, sims, cmd, stack}}
 

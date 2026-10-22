@@ -8,15 +8,16 @@ It has no Tcl interpreter and no threads, so it runs in a plain Web Worker and n
 
 ```sh
 source /path/to/emsdk/emsdk_env.sh
-./wasm/build.sh
+./web/build.sh
 ```
 
-This writes `wasm/irsim.js` (a module factory named `createIrsim`) and `wasm/irsim.wasm`, about 215 KB, and copies
-them into `wasm/demo/`, where they are committed so that the app works on GitHub Pages. Serve the repository root
-over HTTP (for example `python3 -m http.server`, then open `/wasm/demo/`): browsers don't start workers from
-`file://` pages, and the app reads the parameter files in `lib/prm/` from two folders up.
+This writes `web/irsim.js` (a module factory named `createIrsim`) and `web/irsim.wasm`, about 215 KB, next to the
+web app, where they are committed so that the app works on GitHub Pages (https://nickoveracker.github.io/irsim/web/).
+Serve the repository root over HTTP (for example `python3 -m http.server`, then open `/web/`): browsers don't start
+workers from `file://` pages, and the app reads the parameter files in `lib/prm/`, one folder up. The old address,
+`/wasm/demo/`, redirects there.
 
-## The web app (`demo/`)
+## The web app
 
 | File | Role |
 | --- | --- |
@@ -68,7 +69,7 @@ irsim.ccall("irsim_web_history", "string", ["string", "number"], ["A Y", -1]);  
 time. Histories list `time value` pairs, with value 0 low, 1 X, 2 high impedance, 3 high, plus 4 for inputs.
 
 The one-shot use still works, for example in Node.js (`run-node.js`) or by posting `{prm, sim, commands}` to
-`demo/worker.js`, which answers `{output, ms}`:
+`web/worker.js`, which answers `{output, ms}`:
 
 ```js
 const irsim = await createIrsim({print, printErr, stdin: () => (bytes.length ? bytes.shift() : null)});

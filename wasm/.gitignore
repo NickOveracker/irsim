@@ -1,4 +1,0 @@
-# Build outputs (made by build.sh). The copies in demo/ are committed, so that
-# the demo works when the branch is served as a static site (GitHub Pages).
-/irsim.js
-/irsim.wasm
