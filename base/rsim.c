@@ -3563,7 +3563,7 @@ private int doXRelax()
    if (targc == 2) {
       if (!strncmp(targv[1], "h", 1))
 	 set_type = HIGH;
-      else if (strncmp(targv[1], "r", 1))
+      else if (!strncmp(targv[1], "r", 1))
 	 set_type = X;
    }
 	 
