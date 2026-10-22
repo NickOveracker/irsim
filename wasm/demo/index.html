@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IRSIM in the Browser</title>
+<style>
+:root { --bg:#fff; --fg:#1d1d1f; --muted:#5f6368; --rule:#ddd; --code:#f4f4f6; --accent:#4C26B8; }
+@media (prefers-color-scheme: dark) { :root { --bg:#17181a; --fg:#e8e8e8; --muted:#a0a4a8; --rule:#3a3d42; --code:#222428; --accent:#A68CFF; } }
+body { background:var(--bg); color:var(--fg); font:15px/1.5 system-ui, sans-serif; margin:0; }
+main { max-width:1100px; margin:0 auto; padding:20px 16px 40px; }
+h1 { font-size:1.4rem; margin:0 0 4px; }
+p { color:var(--muted); margin:0 0 14px; }
+.row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width:760px) { .row { grid-template-columns:1fr; } }
+label { font-weight:600; display:block; margin:10px 0 4px; }
+textarea, pre { width:100%; box-sizing:border-box; font:13px/1.45 ui-monospace, Menlo, monospace; background:var(--code); color:var(--fg);
+  border:1px solid var(--rule); border-radius:8px; padding:10px; }
+textarea { height:260px; resize:vertical; }
+pre { min-height:200px; white-space:pre-wrap; margin:0; }
+.bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:12px 0; }
+button, select { font:inherit; padding:6px 14px; border-radius:8px; border:1px solid var(--rule); background:var(--code); color:var(--fg); }
+button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+#status { color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>IRSIM in the browser</h1>
+<p>IRSIM 9.7 compiled to WebAssembly, running in a Web Worker. The circuits are Stixu's own IRSIM exports, passed in as text; nothing is uploaded.</p>
+<div class="bar">
+  <select id="example"></select>
+  <button class="primary" id="run">Run</button>
+  <span id="status">Loading…</span>
+</div>
+<div class="row">
+  <div><label for="sim">Circuit (.sim)</label><textarea id="sim" spellcheck="false"></textarea></div>
+  <div><label for="commands">Commands</label><textarea id="commands" spellcheck="false"></textarea></div>
+</div>
+<label for="output">Output</label>
+<pre id="output" aria-live="polite"></pre>
+</main>
+<script>
+const EXAMPLES = {"Inverter (Stixu export)": {"sim": "| units: 100 tech: scmos\n| type gate source drain length width\n| ---- ---- ------ ----- ------ -----\n\n|| pmos at: (5, 6)\np A e2 Y 2 4\n\n|| nmos at: (5, 22)\nn A Y e5 2 4\n", "commands": "alias Y e4 \nalias A e3 \nalias e2 vdd\nalias e5 gnd\nh vdd\nl gnd\nstepsize 50\nl A\ns\nd Y\nh A\ns\nd Y"}, "C-element demo (Stixu export)": {"sim": "| units: 100 tech: scmos\n| type gate source drain length width\n| ---- ---- ------ ----- ------ -----\n\n|| pmos at: (7, 3)\np C e7 e4 2 4\n\n|| nmos at: (7, 7)\nn C e8 e9 2 4\n\n|| pmos at: (7, 19)\np A e12 e7 2 4\n\n|| nmos at: (7, 23)\nn A e9 e6 2 4\n\n|| pmos at: (11, 19)\np B e7 e12 2 4\n\n|| nmos at: (11, 7)\nn B e9 e8 2 4\n\n|| pmos at: (11, 3)\np B e4 e11 2 4\n\n|| nmos at: (11, 23)\nn B e6 e11 2 4\n\n|| pmos at: (17, 4)\np e11 e7 Y 2 4\n\n|| nmos at: (15, 10)\nn Y e8 e11 2 4\n\n|| nmos at: (17, 22)\nn e11 Y e9 2 4\n\n|| pmos at: (15, 16)\np Y e11 e12 2 4\n", "commands": "alias Y e10 \nalias A e3 \nalias B e5 \nalias C e2 \nalias e7 vdd\nalias e9 gnd\nh vdd\nl gnd\nstepsize 50\nl A\nl B\nl C\ns\nd A B C Y\nh A\nh B\nh C\ns\nd A B C Y\nl A\nh B\nh C\ns\nd A B C Y\nl A\nl B\nh C\ns\nd A B C Y\nl A\nl B\nl C\ns\nd A B C Y\nh A\nl B\nl C\ns\nd A B C Y\nh A\nh B\nl C\ns\nd A B C Y\nh A\nh B\nh C\ns\nd A B C Y"}};
+const pick = document.getElementById("example"), sim = document.getElementById("sim"), commands = document.getElementById("commands");
+const output = document.getElementById("output"), status = document.getElementById("status"), runButton = document.getElementById("run");
+let prm = null, worker = new Worker("worker.js");
+
+Object.keys(EXAMPLES).forEach(name => pick.add(new Option(name, name)));
+function load() {
+    sim.value = EXAMPLES[pick.value].sim;
+    commands.value = EXAMPLES[pick.value].commands;
+}
+pick.onchange = load;
+load();
+
+fetch("scmos100.prm").then(r => r.text()).then(text => { prm = text; status.textContent = "Ready."; });
+
+worker.onmessage = function(event) {
+    output.textContent = event.data.output;
+    status.textContent = `Done in ${event.data.ms.toFixed(0)} ms.`;
+    runButton.disabled = false;
+};
+runButton.onclick = function() {
+    if(!prm) { return; }
+    runButton.disabled = true;
+    status.textContent = "Running…";
+    worker.postMessage({prm: prm, sim: sim.value, commands: commands.value,});
+};
+</script>
+</body>
+</html>

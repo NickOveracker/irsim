@@ -197,6 +197,8 @@ private Pointer GetMoreCore( npages )
 
 #ifdef host_mips			/* kludge for mips based systems */
 #    define	heap_start	(char *) 0x10000000
+#elif defined(__EMSCRIPTEN__)		/* no etext in WebAssembly */
+#    define	heap_start	(char *) 0
 #else
 #    define	heap_start	(char *) &etext
 #endif

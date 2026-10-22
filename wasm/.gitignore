@@ -1,0 +1,6 @@
+# Build outputs (made by build.sh)
+irsim.js
+irsim.wasm
+demo/irsim.js
+demo/irsim.wasm
+demo/scmos100.prm
