@@ -716,7 +716,7 @@ document.addEventListener("keydown", event => {
     }
 });
 document.addEventListener("click", event => {
-    const control = event.target.closest("button, input[type=checkbox], label");
+    const control = event.target.closest("button, input[type=checkbox], label, #kofi");
     if(event.detail === 0 || !control || control.closest("dialog, .mb-menu, .mb-bar, #help, .files-bar, .command-row")) {
         return;
     }
@@ -741,7 +741,6 @@ $("#top-menus").appendChild(menuBar([
         "-",
         {label: "Source code", href: "https://github.com/NickOveracker/irsim/tree/wasm"},
     ]],
-    ["Ko-fi", "https://ko-fi.com/twentynine"],
 ], "Page menu", {onDone: home}));
 
 window.addEventListener("resize", () => analyzer.draw());

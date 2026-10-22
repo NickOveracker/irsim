@@ -24,7 +24,7 @@ redirect there.
 
 | File | Role |
 | --- | --- |
-| `index.html`, `app.js` | The page: console with history, Project / Examples / Windows menus, the Files window, projects, help. |
+| `index.html`, `app.js` | The page: console with history, Project / Examples / Windows / About menus, the Files window, projects, help. |
 | `worker.js`, `session.js` | IRSIM in a Web Worker, one command at a time. Output and analyzer calls stream to the page while a command runs. |
 | `analyzer.js` | The logic analyzer, after the Tk analyzer in `src/tcltk/irsim.tcl.in`. |
 | `tracemgr.js` | Manage Traces: the Tk "IRSIM node and vector lists" window. |
