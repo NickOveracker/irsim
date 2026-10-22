@@ -540,8 +540,11 @@ export class Analyzer {
                         this.hist.set(name, h);
                     }
                     for(let i = 0; i < nums.length; i += 2) {
-                        if(h.t.length && nums[i] <= since) {
-                            continue;            // The entry in effect at "since": already known
+                        // Entries before "since" are known. One at "since" itself may be new: inputs
+                        // set with h, l or x take effect at the start of the next step, which is the
+                        // time of the last fetch.
+                        if(h.t.length && nums[i] < since) {
+                            continue;
                         }
                         if(h.t.length && nums[i] === h.t[h.t.length - 1]) {
                             h.v[h.v.length - 1] = nums[i + 1];
