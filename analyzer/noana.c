@@ -16,11 +16,12 @@
 #include "defs.h"
 #include "net.h"
 
+extern void lprintf(FILE *, ...);
 
-extern void lprintf();
 
 
-typedef long  TimeType;
+
+typedef Ulong  TimeType;
 
 
 public int AddNode( nd, flag )
@@ -69,3 +70,9 @@ public int InitDisplay( fname, display_unit )
 public void InitTimes( firstT, stepsize, lastT, reInit )
   TimeType  firstT, stepsize, lastT;
   {}
+
+/* Stubs added for a headless (no-analyzer) build. */
+public void EnableInput()  {}
+public void DisableInput() {}
+public int OffsetNode()   { return 0; }
+public int OffsetVector() { return 0; }
