@@ -18,62 +18,36 @@
 
 
 /*
- * Extract NBYTES from byte stream BUFF and place result in NUM.
- * Restriction is 1 <= NBYTES <= 4.  (Force Unrolling of loops).
+ * Extract NBYTES from byte stream BUFF (least significant byte first) and
+ * place result in NUM.  NBYTES may be up to sizeof(Ulong): times are Ulong,
+ * which is 8 bytes (loctypes.h), so the old 1..4 byte limit lost them.
  */
 #define UnpackBytes( BUFF, NUM, NBYTES )			\
   {								\
     register unsigned char  *B_S = (unsigned char *) (BUFF);	\
-    register unsigned long  RES = 0;				\
+    register Ulong          RES = 0;				\
+    register int            B_I;				\
 								\
-    if( NBYTES == 1 )						\
-	RES = *B_S;						\
-    else if( NBYTES == 2 )					\
-      {								\
-	RES = B_S[0];						\
-	RES += ( ((unsigned int) B_S[1]) << 8 ) & 0x0ff00;	\
-      }								\
-    else if( NBYTES == 3 )					\
-      {								\
-	RES = B_S[0];						\
-	RES += ( ((unsigned int) B_S[1]) << 8 ) & 0x0ff00;	\
-	RES += ( ((unsigned int) B_S[2]) << 16 ) & 0x0ff0000;	\
-      }								\
-    else if( NBYTES == 4 )					\
-      {								\
-	RES = B_S[0];						\
-	RES += ( ((unsigned int) B_S[1]) << 8 ) & 0x0ff00;	\
-	RES += ( ((unsigned int) B_S[2]) << 16 ) & 0x0ff0000;	\
-	RES += ( ((unsigned int) B_S[3]) << 24 ) & 0xff000000;	\
-      }								\
+    for( B_I = (NBYTES) - 1; B_I >= 0; B_I-- )			\
+	RES = (RES << 8) | B_S[B_I];				\
     NUM = RES;							\
   }								\
 
 
 /*
- * Pack NBYTES from NUM into byte stream pointed to by BUFF.
- * Restriction is 1 <= NBYTES <= 4.  (Force Unrolling of loops).
+ * Pack NBYTES from NUM into byte stream pointed to by BUFF, least
+ * significant byte first.  NBYTES may be up to sizeof(Ulong).
  */
 #define	PackBytes( BUFF, NUM, NBYTES )				\
   {								\
-    register unsigned long  B_T = (NUM);			\
+    register Ulong          B_T = (Ulong) (NUM);		\
     register unsigned char  *B_S = (unsigned char *) (BUFF);	\
+    register int            B_I;				\
 								\
-    if( NBYTES > 3 )						\
+    for( B_I = 0; B_I < (NBYTES); B_I++ )			\
       {								\
-	*B_S++ = B_T & 0x0ff;					\
+	B_S[B_I] = B_T & 0x0ff;					\
 	B_T >>= 8;						\
       }								\
-    if( NBYTES > 2 )						\
-      {								\
-	*B_S++ = B_T & 0x0ff;					\
-	B_T >>= 8;						\
-      }								\
-    if( NBYTES > 1 )						\
-      {								\
-	*B_S++ = B_T & 0x0ff;					\
-	B_T >>= 8;						\
-      }								\
-    *B_S = B_T & 0x0ff;						\
   }								\
 
