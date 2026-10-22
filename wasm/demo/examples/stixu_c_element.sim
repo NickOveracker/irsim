@@ -1,0 +1,39 @@
+| units: 100 tech: scmos
+| type gate source drain length width
+| ---- ---- ------ ----- ------ -----
+
+|| pmos at: (7, 3)
+p C e7 e4 2 4
+
+|| nmos at: (7, 7)
+n C e8 e9 2 4
+
+|| pmos at: (7, 19)
+p A e12 e7 2 4
+
+|| nmos at: (7, 23)
+n A e9 e6 2 4
+
+|| pmos at: (11, 19)
+p B e7 e12 2 4
+
+|| nmos at: (11, 7)
+n B e9 e8 2 4
+
+|| pmos at: (11, 3)
+p B e4 e11 2 4
+
+|| nmos at: (11, 23)
+n B e6 e11 2 4
+
+|| pmos at: (17, 4)
+p e11 e7 Y 2 4
+
+|| nmos at: (15, 10)
+n Y e8 e11 2 4
+
+|| nmos at: (17, 22)
+n e11 Y e9 2 4
+
+|| pmos at: (15, 16)
+p Y e11 e12 2 4

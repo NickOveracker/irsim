@@ -1,0 +1,9 @@
+| units: 100 tech: scmos
+| type gate source drain length width
+| ---- ---- ------ ----- ------ -----
+
+|| pmos at: (5, 6)
+p A e2 Y 2 4
+
+|| nmos at: (5, 22)
+n A Y e5 2 4
