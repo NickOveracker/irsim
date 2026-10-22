@@ -6,7 +6,7 @@
 import {Session} from "./session.js";
 import {Analyzer, formatNs} from "./analyzer.js";
 import {TraceManager} from "./tracemgr.js";
-import {FloatingWindow} from "./floating-window.js";
+import {FloatingWindow, topEdgeResizer} from "./floating-window.js";
 import {menuBar, closeMenus} from "./menu.js";
 import {ask, setHomeFocus} from "./dialog.js";
 import {readArchive, isArchive, stripCommonFolder, cleanPath, writeTarGz} from "./archive.js";
@@ -14,6 +14,7 @@ import {diskSupported, DiskStore, BrowserStore, recentProjects, reopen, forget} 
 
 const $ = selector => document.querySelector(selector);
 const desktop = $("#desktop");
+topEdgeResizer($("#console"), desktop, {label: "Resize the console"});
 const log = $("#log");
 const commandInput = $("#command");
 const statusEl = $("#status");

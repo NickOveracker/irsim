@@ -43,9 +43,9 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 
 #desktop { position: relative; flex: 1; min-height: 120px; overflow: hidden; }
 
-#console { display: flex; flex-direction: column; height: 40%; min-height: 34px; resize: vertical; overflow: hidden;
+#console { display: flex; flex-direction: column; height: 40%; min-height: 34px; overflow: hidden;
   background: var(--log-bg); border-top: 1px solid var(--rule); }
-#console.collapsed { height: auto !important; resize: none; }
+#console.collapsed { height: auto !important; }
 #console.collapsed #log { display: none; }
 #log { flex: 1; overflow: auto; padding: 4px 10px; font: 12px/1.45 var(--mono); white-space: pre-wrap; }
 .log-error { color: var(--error); }
