@@ -1,6 +1,4 @@
-# Build outputs (made by build.sh)
-irsim.js
-irsim.wasm
-demo/irsim.js
-demo/irsim.wasm
-demo/scmos100.prm
+# Build outputs (made by build.sh). The copies in demo/ are committed, so that
+# the demo works when the branch is served as a static site (GitHub Pages).
+/irsim.js
+/irsim.wasm
