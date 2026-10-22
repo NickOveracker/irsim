@@ -1104,7 +1104,7 @@ public int rd_network( simfile, prefix, has_param_file )
 	    VDD_node = (nptr*)malloc( 2 * sizeof(nptr) );
 	    *( VDD_node + 1 ) = NULL;
 	  }
-	*VDD_node = RsimGetNode( power_net_name );
+	*VDD_node = RsimGetNode( *power_net_name );
 	(*VDD_node)->npot = HIGH;
 	(*VDD_node)->nflags |= (INPUT | POWER_RAIL);
 	(*VDD_node)->head.inp = 1;
