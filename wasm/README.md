@@ -36,6 +36,26 @@ irsim.callMain(["/tech.prm", "/circuit.sim"]);
 repository root over HTTP (for example `python3 -m http.server`, then open `/wasm/demo/`), since browsers don't
 start workers from `file://` pages and the demo reads `lib/prm/` from two folders up.
 
+## Waveforms
+
+`demo/waveform.js` has no dependencies and provides `IrsimWaveforms`:
+
+* `parseTrace(output, order)` reads the transitions that IRSIM's `t` (trace) command prints, for example
+  `@ 50.52ns Y: 0 -> 1`, and the `time = …` line at the end of each step. It returns the signals, each with its
+  changes, and the end time.
+* `WaveformView` draws them as an SVG timing diagram. Unknown (X) stretches are hatched, and inputs are coloured.
+  The mouse wheel zooms around the pointer, dragging pans, and a double-click fits everything. There are also
+  −, + and Fit buttons. Hovering shows each signal's value and the time. With the plot focused, + and − zoom,
+  the arrow keys pan and 0 fits.
+* `FloatingWindow` is a window inside the page. Drag it by its title bar, resize it from its right edge, bottom edge
+  or corner, collapse it to the title bar (button or double-click) and close it. Several can overlap, and clicking
+  one brings it to the front. With the title bar focused, the arrow keys move it and Shift plus the arrow keys
+  resize it. It works with a mouse, touch or a pen, and remembers its position and size in the browser.
+
+The demo traces the nodes named in the commands' `t` lines and plots them after each run. The **Waveforms** button
+reopens the window after it has been closed. IRSIM's own analyzer (`ana`) is an X11 window and isn't part of this
+build.
+
 ## Checks
 
 The WebAssembly build and a native headless build (same sources, gcc) give identical output on 86 circuits

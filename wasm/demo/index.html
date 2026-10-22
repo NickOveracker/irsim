@@ -27,10 +27,11 @@ button.primary { background:var(--accent); color:#fff; border-color:var(--accent
 <body>
 <main>
 <h1>IRSIM in the browser</h1>
-<p>IRSIM 9.7 compiled to WebAssembly, running in a Web Worker. The circuits are Stixu's own IRSIM exports, passed in as text; nothing is uploaded.</p>
+<p>IRSIM 9.7 compiled to WebAssembly, running in a Web Worker. The circuits are Stixu's own IRSIM exports, passed in as text; nothing is uploaded. Nodes traced with <code>t</code> are plotted in a window you can move, resize, collapse and close.</p>
 <div class="bar">
   <select id="example"></select>
   <button class="primary" id="run" disabled>Run</button>
+  <button id="waves" disabled>Waveforms</button>
   <span id="status">Loading…</span>
 </div>
 <div class="row">
@@ -40,8 +41,9 @@ button.primary { background:var(--accent); color:#fff; border-color:var(--accent
 <label for="output">Output</label>
 <pre id="output" aria-live="polite"></pre>
 </main>
+<script src="waveform.js"></script>
 <script>
-const EXAMPLES = {"Inverter (Stixu export)": {"sim": "| units: 100 tech: scmos\n| type gate source drain length width\n| ---- ---- ------ ----- ------ -----\n\n|| pmos at: (5, 6)\np A e2 Y 2 4\n\n|| nmos at: (5, 22)\nn A Y e5 2 4\n", "commands": "alias Y e4 \nalias A e3 \nalias e2 vdd\nalias e5 gnd\nh vdd\nl gnd\nstepsize 50\nl A\ns\nd Y\nh A\ns\nd Y"}, "C-element demo (Stixu export)": {"sim": "| units: 100 tech: scmos\n| type gate source drain length width\n| ---- ---- ------ ----- ------ -----\n\n|| pmos at: (7, 3)\np C e7 e4 2 4\n\n|| nmos at: (7, 7)\nn C e8 e9 2 4\n\n|| pmos at: (7, 19)\np A e12 e7 2 4\n\n|| nmos at: (7, 23)\nn A e9 e6 2 4\n\n|| pmos at: (11, 19)\np B e7 e12 2 4\n\n|| nmos at: (11, 7)\nn B e9 e8 2 4\n\n|| pmos at: (11, 3)\np B e4 e11 2 4\n\n|| nmos at: (11, 23)\nn B e6 e11 2 4\n\n|| pmos at: (17, 4)\np e11 e7 Y 2 4\n\n|| nmos at: (15, 10)\nn Y e8 e11 2 4\n\n|| nmos at: (17, 22)\nn e11 Y e9 2 4\n\n|| pmos at: (15, 16)\np Y e11 e12 2 4\n", "commands": "alias Y e10 \nalias A e3 \nalias B e5 \nalias C e2 \nalias e7 vdd\nalias e9 gnd\nh vdd\nl gnd\nstepsize 50\nl A\nl B\nl C\ns\nd A B C Y\nh A\nh B\nh C\ns\nd A B C Y\nl A\nh B\nh C\ns\nd A B C Y\nl A\nl B\nh C\ns\nd A B C Y\nl A\nl B\nl C\ns\nd A B C Y\nh A\nl B\nl C\ns\nd A B C Y\nh A\nh B\nl C\ns\nd A B C Y\nh A\nh B\nh C\ns\nd A B C Y"}};
+const EXAMPLES = {"Inverter (Stixu export)": {"sim": "| units: 100 tech: scmos\n| type gate source drain length width\n| ---- ---- ------ ----- ------ -----\n\n|| pmos at: (5, 6)\np A e2 Y 2 4\n\n|| nmos at: (5, 22)\nn A Y e5 2 4\n", "commands": "alias Y e4 \nalias A e3 \nalias e2 vdd\nalias e5 gnd\nh vdd\nl gnd\nstepsize 50\nt A Y\nl A\ns\nd Y\nh A\ns\nd Y"}, "C-element demo (Stixu export)": {"sim": "| units: 100 tech: scmos\n| type gate source drain length width\n| ---- ---- ------ ----- ------ -----\n\n|| pmos at: (7, 3)\np C e7 e4 2 4\n\n|| nmos at: (7, 7)\nn C e8 e9 2 4\n\n|| pmos at: (7, 19)\np A e12 e7 2 4\n\n|| nmos at: (7, 23)\nn A e9 e6 2 4\n\n|| pmos at: (11, 19)\np B e7 e12 2 4\n\n|| nmos at: (11, 7)\nn B e9 e8 2 4\n\n|| pmos at: (11, 3)\np B e4 e11 2 4\n\n|| nmos at: (11, 23)\nn B e6 e11 2 4\n\n|| pmos at: (17, 4)\np e11 e7 Y 2 4\n\n|| nmos at: (15, 10)\nn Y e8 e11 2 4\n\n|| nmos at: (17, 22)\nn e11 Y e9 2 4\n\n|| pmos at: (15, 16)\np Y e11 e12 2 4\n", "commands": "alias Y e10 \nalias A e3 \nalias B e5 \nalias C e2 \nalias e7 vdd\nalias e9 gnd\nh vdd\nl gnd\nstepsize 50\nt A B C Y\nl A\nl B\nl C\ns\nd A B C Y\nh A\nh B\nh C\ns\nd A B C Y\nl A\nh B\nh C\ns\nd A B C Y\nl A\nl B\nh C\ns\nd A B C Y\nl A\nl B\nl C\ns\nd A B C Y\nh A\nl B\nl C\ns\nd A B C Y\nh A\nh B\nl C\ns\nd A B C Y\nh A\nh B\nh C\ns\nd A B C Y"}};
 const pick = document.getElementById("example"), sim = document.getElementById("sim"), commands = document.getElementById("commands");
 const output = document.getElementById("output"), status = document.getElementById("status"), runButton = document.getElementById("run");
 let prm = null, worker = new Worker("worker.js");
@@ -56,8 +58,28 @@ load();
 
 fetch("../../lib/prm/scmos100.prm").then(r => r.text()).then(text => { prm = text; status.textContent = "Ready."; runButton.disabled = false; });
 
+// Waveforms of the nodes traced with "t", in the order the commands name them.
+const wavesButton = document.getElementById("waves");
+let wavesWindow = null, wavesView = null;
+function tracedNames(text) {
+    return [].concat(...text.split("\n").filter(line => /^\s*t\s/.test(line)).map(line => line.trim().split(/\s+/).slice(1)));
+}
+function showWaveforms(output) {
+    const trace = IrsimWaveforms.parseTrace(output, tracedNames(commands.value));
+    if(!wavesWindow) {
+        wavesWindow = new IrsimWaveforms.FloatingWindow({id: "irsim-waveforms", title: "Waveforms",
+            x: Math.max(16, window.innerWidth - 640), y: 90, width: Math.min(600, window.innerWidth - 32), height: 300,});
+        wavesView = new IrsimWaveforms.WaveformView(wavesWindow.body);
+    }
+    wavesView.setTrace(trace);
+    wavesWindow.show();
+    wavesButton.disabled = false;
+}
+wavesButton.onclick = () => wavesWindow && wavesWindow.show();
+
 worker.onmessage = function(event) {
     output.textContent = event.data.output;
+    showWaveforms(event.data.output);
     status.textContent = `Done in ${event.data.ms.toFixed(0)} ms.`;
     runButton.disabled = false;
 };
