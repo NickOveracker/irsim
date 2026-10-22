@@ -4,18 +4,21 @@ IRSIM 9.7 compiled to WebAssembly with [Emscripten](https://emscripten.org), and
 features of IRSIM's Tcl/Tk front end: an interactive console, the logic analyzer, and the node and vector lists.
 It has no Tcl interpreter and no threads, so it runs in a plain Web Worker and needs no special server headers.
 
+The app is at https://nickoveracker.github.io/irsim/ and is what this folder holds; IRSIM's own source, with its
+original README and native build, is in `src/`.
+
 ## Building
 
 ```sh
 source /path/to/emsdk/emsdk_env.sh
-./web/build.sh
+./build.sh
 ```
 
-This writes `web/irsim.js` (a module factory named `createIrsim`) and `web/irsim.wasm`, about 215 KB, next to the
-web app, where they are committed so that the app works on GitHub Pages (https://nickoveracker.github.io/irsim/web/).
-Serve the repository root over HTTP (for example `python3 -m http.server`, then open `/web/`): browsers don't start
-workers from `file://` pages, and the app reads the parameter files in `lib/prm/`, one folder up. The old address,
-`/wasm/demo/`, redirects there.
+This builds the sources in `src/` and writes `irsim.js` (a module factory named `createIrsim`) and `irsim.wasm`, about
+215 KB, next to the web app, where they are committed so that the app works on GitHub Pages. Serve the repository
+root over HTTP (for example `python3 -m http.server`, then open `/`): browsers don't start workers from `file://`
+pages, and the app reads the parameter files in `src/lib/prm/`. The old addresses, `/web/` and `/wasm/demo/`,
+redirect there.
 
 ## The web app
 
@@ -23,7 +26,7 @@ workers from `file://` pages, and the app reads the parameter files in `lib/prm/
 | --- | --- |
 | `index.html`, `app.js` | The page: console with history, Project / Examples / Windows menus, the Files window, projects, help. |
 | `worker.js`, `session.js` | IRSIM in a Web Worker, one command at a time. Output and analyzer calls stream to the page while a command runs. |
-| `analyzer.js` | The logic analyzer, after the Tk analyzer in `tcltk/irsim.tcl.in`. |
+| `analyzer.js` | The logic analyzer, after the Tk analyzer in `src/tcltk/irsim.tcl.in`. |
 | `tracemgr.js` | Manage Traces: the Tk "IRSIM node and vector lists" window. |
 | `menu.js`, `dialog.js`, `floating-window.js`, `archive.js`, `storage.js` | Menus, dialogs, windows, .zip/.tar.gz, project storage (shared with the Magic web app). |
 | `examples/` | Circuits from the Stixu stick-diagram editor (https://stixu.io): Magic-extracted netlists with command files, and two of Stixu's own IRSIM exports. |
@@ -33,7 +36,7 @@ workers from `file://` pages, and the app reads the parameter files in `lib/prm/
   commands before it, which gives back the same state, since the simulation is deterministic. `exit` and crashes
   recover the same way.
 * **Analyzer.** IRSIM itself decides what to show: `ana` (with wildcards, vectors and `-b`/`-o`/`-h`) goes through
-  IRSIM's analyzer interface, implemented by `analyzer/webana.c`, and the waveforms come from IRSIM's node histories
+  IRSIM's analyzer interface, implemented by `src/analyzer/webana.c`, and the waveforms come from IRSIM's node histories
   (`irsim_web_history`), not from parsing printed output.
   * Menus as in Tk: Zoom (In, Out, Full), Base (Binary, Octal, Unsigned and Signed Decimal, Hex, for the selected
     trace or all), Window (Manage Traces, Name Length, Scroll, Scroll Step, Shift Step, plus the X11 analyzer's
@@ -45,7 +48,7 @@ workers from `file://` pages, and the app reads the parameter files in `lib/prm/
     Escape clears them, `z` zooms to the marked interval; arrows and Shift+arrows step, `z`/`Z` zoom out/in, `v`
     shows everything; Ctrl+wheel zooms at the pointer.
 * **Projects.** Open .sim, .prm and .cmd files, a folder, or one .zip/.tar/.tar.gz (or drop them on the page).
-  IRSIM starts with the project's .prm (or a built-in one from `lib/prm`) and .sim, then runs the .cmd file of the
+  IRSIM starts with the project's .prm (or a built-in one from `src/lib/prm`) and .sim, then runs the .cmd file of the
   same name. Simulation setup chooses the files and `-s`. Projects can be kept in a folder on disk (Chromium
   browsers) or in the browser's storage; files IRSIM writes (logfile, dumph, wnet…) and edits in the Files window go
   there.
@@ -69,7 +72,7 @@ irsim.ccall("irsim_web_history", "string", ["string", "number"], ["A Y", -1]);  
 time. Histories list `time value` pairs, with value 0 low, 1 X, 2 high impedance, 3 high, plus 4 for inputs.
 
 The one-shot use still works, for example in Node.js (`run-node.js`) or by posting `{prm, sim, commands}` to
-`web/worker.js`, which answers `{output, ms}`:
+`worker.js`, which answers `{output, ms}`:
 
 ```js
 const irsim = await createIrsim({print, printErr, stdin: () => (bytes.length ? bytes.shift() : null)});
@@ -109,5 +112,7 @@ x86-64 fail here. Fixing them turned up several real bugs, which are separate co
   a pointer (`d` and node lists showed garbage; lookups still worked through the power-name check).
 * `rsim.c`: `evstats` before `histev on` walked an event table that is NULL rather than empty (a crash natively,
   an endless loop here).
+* `tpos.c`: names by transistor position (`@=d535,82`, which Magic's `simcmd` and rsim tool send) were compared
+  with positions the `.sim` reader had converted from lambda to centimicrons, so none was ever found.
 * `bin_io.h`: the byte packing macros handle 1 to 4 bytes, but times are 8-byte `Ulong`, so `dumph` wrote half of
   each time and `readh` read 0 and rejected every dump ("incompatible or bad history dump"), natively too.

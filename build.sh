@@ -1,10 +1,10 @@
 #!/bin/sh
 # Build IRSIM to WebAssembly (no Tcl, no X11 analyzer, no threads).  The analyzer is the
 # web one (analyzer/webana.c), and irsim/irsimweb.c adds an interactive session for the page.
-# Needs the Emscripten SDK on the PATH (source emsdk_env.sh). Writes web/irsim.js and web/irsim.wasm, next to
+# Needs the Emscripten SDK on the PATH (source emsdk_env.sh). Writes irsim.js and irsim.wasm at the top, next to
 # the web app; they are committed, so that the app works when the branch is served as a static site (GitHub Pages).
 set -e
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/src"
 DEFS='-DCAD_DIR="/irsim" -DBIN_DIR="/irsim" -DPACKAGE_NAME="irsim" -DPACKAGE_VERSION="9.7" -DIRSIM_VERSION="9.7" -DIRSIM_REVISION="121" -DIRSIM_DATE="wasm"
  -DSTDC_HEADERS=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1
  -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DSIZEOF_VOID_P=4 -DSIZEOF_UNSIGNED_INT=4 -DSIZEOF_UNSIGNED_LONG=4
@@ -15,9 +15,9 @@ SRCS="base/access.c base/binsim.c base/cad_dir.c base/config.c base/conn_list.c 
  base/intr.c base/mem.c base/netupdate.c base/network.c base/newrstep.c base/nsubrs.c base/parallel.c base/prints.c base/rsim.c
  base/sched.c base/sim.c base/sstep.c base/stack.c base/tpos.c base/usage.c analyzer/webana.c faultsim/faultsim.c faultsim/incsim.c
  usersubckt/subckt.c usersubckt/user.c irsim/irsim.c irsim/irsimweb.c"
-emcc -std=gnu89 -w -O2 $DEFS -Ibase -Ianalyzer $SRCS -o web/irsim.js \
+emcc -std=gnu89 -w -O2 $DEFS -Ibase -Ianalyzer $SRCS -o ../irsim.js \
   -sMODULARIZE=1 -sEXPORT_NAME=createIrsim -sENVIRONMENT=web,worker,node \
   -sALLOW_MEMORY_GROWTH=1 -sINVOKE_RUN=0 -sEXIT_RUNTIME=1 \
   -sEXPORTED_RUNTIME_METHODS=FS,callMain,ccall,cwrap -sFORCE_FILESYSTEM=1 \
   -sEXPORTED_FUNCTIONS=_main,_irsim_web_start_line,_irsim_web_command,_irsim_web_time,_irsim_web_units_per_ns,_irsim_web_nodes,_irsim_web_vectors,_irsim_web_history
-ls -la web/irsim.js web/irsim.wasm
+ls -la ../irsim.js ../irsim.wasm
