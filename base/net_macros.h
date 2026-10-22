@@ -89,7 +89,7 @@
   }
 #define NEW_SUBCKT( S ) \
   { \
-   S = ( SubcktT *) Falloc( sizeof (SubcktT) );\
+   S = ( SubcktT *) Falloc( sizeof (SubcktT), 1 );\
    bzero( S , sizeof(SubcktT) );\
   }
 #endif

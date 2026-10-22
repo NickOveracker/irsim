@@ -446,7 +446,7 @@ void setup_triggers()
       {
 	if( t->samples != NULL )
 	  {
-	    ev = EnqueueOther( TRIGGER_EV, (long) t->samples->time );
+	    ev = EnqueueOther( TRIGGER_EV, (Ulong) t->samples->time );
 	    ev->enode = (nptr) t;
 	    ev->p.hist = t->samples;
 	  }

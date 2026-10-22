@@ -1960,7 +1960,7 @@ int cancelWhen(n, tag)
 		n->awpending = p->nxt;
 	     else	
 		plast->nxt = p->nxt;
-	     Ffree(p); 
+	     Ffree(p, sizeof( assertWhen )); 
 	     return -1;
 	  }
 	  plast = p;

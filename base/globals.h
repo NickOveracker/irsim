@@ -242,17 +242,12 @@ extern void pParallelTxtors( /* */ );
 
 	/* EXPORTS FROM prints.c */
 
-#ifdef TCL_IRSIM
-extern void lprintf(FILE *, const char *, ...);
-extern void rsimerror(char *, ...); 
-#else
-extern void lprintf( /*  va_alist */ );
-extern void lprintf( /* FILE *max, ... */ );
-extern void rsimerror( /*  va_alist */ );
-extern void rsimerror( /* int max, ...*/ );
-#endif
+extern void lprintf(FILE *, ...);
+extern void rsimerror(char *, ...);
 
 	/* EXPORTS FROM rsim.c */
+extern void InitCmdPath();
+extern void init_commands();
 
 extern char	**power_net_name ;
 extern char	*ground_net_name ;

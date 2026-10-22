@@ -408,15 +408,15 @@ again:
 		lprintf( stdout, "Setting default resistance value\n");
 	        if( device_names[i]->devtype == NFET )
 		  {
-		    resist_copy(resistances[STATIC][0], resistances[STATIC][i]);
-		    resist_copy(resistances[DYNHIGH][0], resistances[DYNHIGH][i]);
-		    resist_copy(resistances[DYNLOW][0], resistances[DYNLOW][i]);
+		    resist_copy(&resistances[STATIC][0], &resistances[STATIC][i]);
+		    resist_copy(&resistances[DYNHIGH][0], &resistances[DYNHIGH][i]);
+		    resist_copy(&resistances[DYNLOW][0], &resistances[DYNLOW][i]);
 		  }	  
 		else if( device_names[i]->devtype == PFET )
 		  { 
-		    resist_copy(resistances[STATIC][1], resistances[STATIC][i]);
-		    resist_copy(resistances[DYNHIGH][1], resistances[DYNHIGH][i]);
-		    resist_copy(resistances[DYNLOW][1], resistances[DYNLOW][i]);
+		    resist_copy(&resistances[STATIC][1], &resistances[STATIC][i]);
+		    resist_copy(&resistances[DYNHIGH][1], &resistances[DYNHIGH][i]);
+		    resist_copy(&resistances[DYNLOW][1], &resistances[DYNLOW][i]);
 	 	  }
 		device_names[i]->devinit |= R_SET;
 	      }

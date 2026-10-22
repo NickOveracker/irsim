@@ -377,7 +377,7 @@ private void rd_nodes( nname, n_nodes )
 
     for( n = aliases; n != NULL; n = n->n.next )
       {
-	n->nlink = Index2node( n->c.time );
+	n->nlink = Index2node( (pointertype) n->c.time );
 	n->c.time = 0;
 	nnodes--;
 	naliases++;

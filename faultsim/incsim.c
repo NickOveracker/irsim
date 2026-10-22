@@ -1044,7 +1044,7 @@ private pstg GetConnList( n )
 		      {
 			if( n_par >= MAX_PARALLEL )
 			  {
-			    WarnTooManyParallel();
+			    WarnTooManyParallel( pnode( t->source ), pnode( t->drain ) );
 			    t->tflags |= PBROKEN;
 			    continue;
 			  }
