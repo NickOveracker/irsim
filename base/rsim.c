@@ -4313,7 +4313,8 @@ private int do_pr_ev_stats()
     for( i = j = 0; i < lim; i++ )
       {
 	h = ev_hgm_table[i].head;
-	if( h == last_hist ) continue;
+	/* Nothing recorded yet: the table is set up only by "histev on". */
+	if( h == NULL or h == last_hist ) continue;
 	j++;
 	fprintf( fp, "\n** %s:\n", ev_name[i] );
 	while( h != last_hist )
