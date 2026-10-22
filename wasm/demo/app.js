@@ -32,7 +32,10 @@ const BUILT_IN_PRMS = ["scmos100", "scmos30", "scmos35", "scmos50_3v", "scmos50_
     "amiabn.80.n99z.5", "amic5.30.n98s.3.3", "amicwl.50.n97l.5", "hpcmos10.20.n98v.3.3", "hpcmos14.30.n9ae.3.3",
     "hpcmos26.40.n88x.5", "orbit.60.n96e.5", "tsmc18.10.nxxx.1.8", "tsmc25.15.n99y.2.5", "tsmc35.20.n98t.3.3",
     "tsmc35p.20.n98tp.3.3"];
-const PRM_URL = name => `../../lib/prm/${name}.prm`;
+// Relative to this file rather than the page, so the address the page was opened with
+// (with or without a trailing slash, or from another page) doesn't matter.
+const here = path => new URL(path, import.meta.url);
+const PRM_URL = name => here(`../../lib/prm/${name}.prm`);
 
 let project = null;          // {name, files: [{path, data}], store, synced, setup: {prm, sims, cmd, stack}}
 
@@ -165,9 +168,10 @@ function defaultSetup(name, files) {
 
 async function prmFile(setup) {
     if(BUILT_IN_PRMS.includes(setup.prm)) {
-        const response = await fetch(PRM_URL(setup.prm));
+        const url = PRM_URL(setup.prm);
+        const response = await fetch(url);
         if(!response.ok) {
-            throw new Error(`${setup.prm}.prm: ${response.status}`);
+            throw new Error(`Couldn't load the parameter file ${url}: HTTP ${response.status}`);
         }
         return {path: `/prm/${setup.prm}.prm`, data: new Uint8Array(await response.arrayBuffer())};
     }
@@ -227,9 +231,10 @@ async function loadExample(name) {
     statusEl.textContent = `Loading ${name}…`;
     const files = [];
     for(const ext of ["sim", "cmd"]) {
-        const response = await fetch(`examples/${name}.${ext}`);
+        const url = here(`examples/${name}.${ext}`);
+        const response = await fetch(url);
         if(!response.ok) {
-            throw new Error(`examples/${name}.${ext}: ${response.status}`);
+            throw new Error(`Couldn't load the example ${url}: HTTP ${response.status}`);
         }
         files.push({path: `${name}.${ext}`, data: new Uint8Array(await response.arrayBuffer())});
     }
