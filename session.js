@@ -7,6 +7,21 @@
 // replaying the commands before it in a fresh one (stop()).  The same
 // recovery follows "exit" or a crash.
 
+import {t, maybe, register} from "./i18n.js";
+
+// The session's messages in Japanese (i18n.js).  What IRSIM prints stays as it is.
+register({
+    "No circuit is loaded.": "回路が読み込まれていません。",
+    "IRSIM is not running": "IRSIM が動いていません",
+    "the worker failed": "ワーカーが異常終了しました",
+    "IRSIM exited ({line}).": "IRSIM が終了しました（{line}）。",
+    "IRSIM stopped: {why}.": "IRSIM が停止しました：{why}。",
+    "{message} Restarting and replaying 1 command…": "{message}再起動して、1 個のコマンドを再実行します…",
+    "{message} Restarting and replaying {n} commands…": "{message}再起動して、{n} 個のコマンドを再実行します…",
+    "Back at {time} ns, as before \"{line}\".": "「{line}」の前と同じ {time} ns に戻りました。",
+    "Stopped \"{line}\".": "「{line}」を停止しました。",
+});
+
 export class Session {
     constructor({onOutput, onAnalyzer, onState}) {
         this.onOutput = onOutput;
@@ -46,12 +61,12 @@ export class Session {
                 const p = this.pending.get(m.id);
                 this.pending.delete(m.id);
                 if(p) {
-                    m.error ? p.reject(new Error(m.error)) : p.resolve(m);
+                    m.error ? p.reject(new Error(maybe(m.error))) : p.resolve(m);
                 }
             }
         };
         worker.onerror = event => {
-            this.endedEarly = event.message || "the worker failed";
+            this.endedEarly = event.message || t("the worker failed");
             for(const p of this.pending.values()) {
                 p.reject(new Error(this.endedEarly));
             }
@@ -92,7 +107,7 @@ export class Session {
 
     async runNow(line) {
         if(!this.worker || !this.started) {
-            throw new Error("No circuit is loaded.");
+            throw new Error(t("No circuit is loaded."));
         }
         this.busy = true;
         this.current = line;
@@ -101,7 +116,7 @@ export class Session {
             const reply = await this.request({type: "command", line});
             if(this.endedEarly) {
                 const why = this.endedEarly;
-                await this.recover(line, why === "IRSIM exited" ? `IRSIM exited (${line}).` : `IRSIM stopped: ${why}.`);
+                await this.recover(line, why === "IRSIM exited" ? t("IRSIM exited ({line}).", {line}) : t("IRSIM stopped: {why}.", {why}));
                 return {ret: -1, ended: true};
             }
             this.log.push(line);
@@ -117,7 +132,8 @@ export class Session {
     // Start again with the same files and replay every command that finished.
     async recover(dropped, message) {
         const log = this.log.slice();
-        this.onOutput(`${message} Restarting and replaying ${log.length} command${log.length === 1 ? "" : "s"}…`, true);
+        this.onOutput(t(log.length === 1 ? "{message} Restarting and replaying 1 command…" : "{message} Restarting and replaying {n} commands…",
+            {message, n: log.length}), true);
         this.replaying = true;
         try {
             this.spawn();
@@ -133,7 +149,7 @@ export class Session {
             this.replaying = false;
         }
         this.onAnalyzer("restart", [-1, -1], false);
-        this.onOutput(`Back at ${(this.time / this.unitsPerNs).toFixed(3)} ns, as before "${dropped}".`, false);
+        this.onOutput(t("Back at {time} ns, as before \"{line}\".", {time: (this.time / this.unitsPerNs).toFixed(3), line: dropped}), false);
     }
 
     // Stop the command that is running (by restarting and replaying).
@@ -147,7 +163,7 @@ export class Session {
         }
         this.pending.clear();
         this.queue = Promise.resolve();
-        await this.recover(line, `Stopped "${line}".`);
+        await this.recover(line, t("Stopped \"{line}\".", {line}));
         this.busy = false;
         this.onState();
     }

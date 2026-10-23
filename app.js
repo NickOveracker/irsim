@@ -13,13 +13,146 @@ import {ask, setHomeFocus} from "./dialog.js";
 import {readArchive, isArchive, stripCommonFolder, cleanPath, writeTarGz} from "./archive.js";
 import {receiveProject} from "./handoff.js";
 import {diskSupported, DiskStore, BrowserStore, recentProjects, reopen, forget} from "./storage.js";
+import {t, register, applyStatic, languageButton, onLanguageChange} from "./i18n.js";
 
 const $ = selector => document.querySelector(selector);
 const desktop = $("#desktop");
-topEdgeResizer($("#console"), desktop, {label: "Resize the console"});
 const log = $("#log");
 const commandInput = $("#command");
 const statusEl = $("#status");
+
+// The page's text in Japanese (i18n.js); the English is in the code.  IRSIM's own output,
+// commands, node names and file names stay as they are.
+register({
+    // Menus and windows
+    "Page menu": "ページメニュー",
+    // The page (index.html)
+    "switch-level simulator · WebAssembly": "スイッチレベルシミュレーター · WebAssembly",
+    "Help": "ヘルプ",
+    "Stop": "停止",
+    "Stop the command that is running": "実行中のコマンドを停止します",
+    "Loading…": "読み込み中…",
+    "Support on Ko-fi": "Ko-fi で支援",
+    "IRSIM windows": "IRSIM のウィンドウ",
+    "IRSIM console": "IRSIM のコンソール",
+    "Show or hide the console": "コンソールの表示／非表示",
+    "Project": "プロジェクト",
+    "Examples": "サンプル",
+    "Windows": "ウィンドウ",
+    "About": "情報",
+    "Files": "ファイル",
+    "Analyzer": "アナライザー",
+    "Manage Traces": "トレースの管理",
+    "Resize the console": "コンソールのサイズを変更",
+    "Resize the file list": "ファイル一覧の幅を変更",
+    "Open files…": "ファイルを開く…",
+    "Open folder (copy)…": "フォルダーを開く（コピー）…",
+    "Work in a folder on disk…": "ディスク上のフォルダーで作業…",
+    "Open a folder; files IRSIM writes and your edits are saved into it":
+        "フォルダーを開きます。IRSIM が書き出すファイルと編集内容はそこに保存されます",
+    "Save project to a folder on disk…": "プロジェクトをディスク上のフォルダーに保存…",
+    "Copy this project into a folder and keep working there": "このプロジェクトをフォルダーにコピーし、そこで作業を続けます",
+    "Keep project in browser storage": "プロジェクトをブラウザーのストレージに保存",
+    "Saves into this browser (private to this site) and keeps it there":
+        "このブラウザー内（このサイト専用）に保存し、以後もそこに保存します",
+    "Needs Chrome, Edge or another Chromium browser (the File System Access API)":
+        "Chrome、Edge などの Chromium 系ブラウザーが必要です（File System Access API）",
+    "Reopen {name} (folder)": "{name} を再び開く（フォルダー）",
+    "Reopen {name} (browser storage)": "{name} を再び開く（ブラウザーのストレージ）",
+    "Forget recent projects…": "最近のプロジェクトを消去…",
+    "Forget the recent projects? Folders on disk are not touched.":
+        "最近のプロジェクトの一覧を消去しますか？ディスク上のフォルダーには手を加えません。",
+    "Forget the recent projects? This deletes {names} from browser storage. Folders on disk are not touched.":
+        "最近のプロジェクトの一覧を消去しますか？ブラウザーのストレージから {names} を削除します。ディスク上のフォルダーには手を加えません。",
+    "Simulation setup…": "シミュレーションの設定…",
+    "Restart simulation": "シミュレーションを再起動",
+    "Download project (.tar.gz)": "プロジェクトをダウンロード（.tar.gz）",
+    "Mirror full adder, sized for speed (default)": "ミラー型全加算器、速度重視のサイズ（既定）",
+    "4×4 multiplier, sized for speed (vectors)": "4×4 乗算器、速度重視のサイズ（ベクトル）",
+    "D flip-flop (clock)": "D フリップフロップ（クロック）",
+    "C-element": "C 素子",
+    "Inverter": "インバーター",
+    "C-element, Stixu's own IRSIM export": "C 素子（Stixu 自身の IRSIM 書き出し）",
+    "Inverter, Stixu's own IRSIM export": "インバーター（Stixu 自身の IRSIM 書き出し）",
+    "4-bit counter, from Magic's tutorial 11": "4 ビットカウンター（Magic のチュートリアル 11 より）",
+    "OpenRAM's D flip-flop (TSMC 0.35 µm parameters)": "OpenRAM の D フリップフロップ（TSMC 0.35 µm のパラメーター）",
+    "IRSIM (Open Circuit Design)": "IRSIM（Open Circuit Design）",
+    "IRSIM upstream source": "IRSIM の本家のソース",
+    "IRSIM license (GPL 2)": "IRSIM のライセンス（GPL 2）",
+    "Web app license (GPL 2 or later)": "ウェブアプリのライセンス（GPL 2 以降）",
+    "Emscripten runtime license (MIT)": "Emscripten ランタイムのライセンス（MIT）",
+    "This web app's source": "このウェブアプリのソース",
+    // Dialogs
+    "Simulation setup": "シミュレーションの設定",
+    "IRSIM restarts with these files.": "IRSIM をこれらのファイルで再起動します。",
+    "Parameter file (.prm)": "パラメーターファイル（.prm）",
+    "{name} (project)": "{name}（プロジェクト）",
+    "{name} (built in)": "{name}（組み込み）",
+    "Network files (.sim), separated by spaces": "ネットワークファイル（.sim、空白区切り）",
+    "Command file to run first (optional)": "最初に実行するコマンドファイル（任意）",
+    "Stack series transistors (-s)": "直列トランジスタをまとめて扱う（-s）",
+    "no": "いいえ",
+    "yes": "はい",
+    "Restart": "再起動",
+    "New file": "新しいファイル",
+    "File name": "ファイル名",
+    "Create": "作成",
+    // The Files window
+    "Save": "保存",
+    "Write the file (Ctrl+S)": "ファイルを書き込みます（Ctrl+S）",
+    "Run": "実行",
+    "Run it as a command file": "コマンドファイルとして実行します",
+    "New…": "新規…",
+    "Download": "ダウンロード",
+    "Project files": "プロジェクトのファイル",
+    "File contents": "ファイルの内容",
+    "({n} bytes: too big to show)": "（{n} バイト。大きすぎて表示できません）",
+    // The console and status
+    "Running {command}…": "{command} を実行中…",
+    "Ready": "準備完了",
+    "no circuit": "回路なし",
+    " · not saved to {where}!": " · {where} に保存できていません！",
+    " · kept in {where}": " · {where} に保存中",
+    " · in memory only": " · メモリ上のみ",
+    "The session stays open in the browser; Project > Restart simulation starts it again.":
+        "セッションはブラウザー内で開いたままです。「プロジェクト」>「シミュレーションを再起動」で起動し直せます。",
+    "No circuit is running: open one from Examples or Project.":
+        "実行中の回路がありません。「サンプル」か「プロジェクト」から開いてください。",
+    "Couldn't load the parameter file {url}: HTTP {status}": "パラメーターファイル {url} を読み込めませんでした：HTTP {status}",
+    "The project has no .sim file to simulate. Add one (Project > Open files) or choose one in Project > Simulation setup.":
+        "このプロジェクトにはシミュレーションする .sim ファイルがありません。追加する（「プロジェクト」>「ファイルを開く」）か、" +
+        "「プロジェクト」>「シミュレーションの設定」で選んでください。",
+    "\"{path}\": IRSIM can't take file names with spaces; please rename it.":
+        "「{path}」：IRSIM は空白を含むファイル名を扱えません。名前を変更してください。",
+    "IRSIM could not start on these files.": "これらのファイルでは IRSIM を起動できませんでした。",
+    "No files to load.": "読み込むファイルがありません。",
+    "Opened {name}: {files}": "{name} を開きました：{files}",
+    "Opened {name}: no files yet": "{name} を開きました：まだファイルはありません",
+    "Loading {name}…": "{name} を読み込み中…",
+    "Couldn't load the example {url}: HTTP {status}": "サンプル {url} を読み込めませんでした：HTTP {status}",
+    "Restarting the simulation.": "シミュレーションを再起動します。",
+    "Saved {files} to {where}": "{files} を {where} に保存しました",
+    "Couldn't save to {where}: {why}": "{where} に保存できませんでした：{why}",
+    "Reading {where}…": "{where} を読み込み中…",
+    "Working in {where}: files IRSIM writes and your edits are saved there.":
+        "{where} で作業しています。IRSIM が書き出すファイルと編集内容はそこに保存されます。",
+    "Saved 1 file to {where}; later changes go there too.": "1 個のファイルを {where} に保存しました。以後の変更もそこに保存されます。",
+    "Saved {n} files to {where}; later changes go there too.": "{n} 個のファイルを {where} に保存しました。以後の変更もそこに保存されます。",
+    "Saved 1 file to {name}": "1 個のファイルを {name} に保存しました",
+    "Saved {n} files to {name}": "{n} 個のファイルを {name} に保存しました",
+    "Wrote {path}": "{path} を書き込みました",
+    "Wrote {path} (Project > Restart simulation reads it again)":
+        "{path} を書き込みました（「プロジェクト」>「シミュレーションを再起動」で読み込み直されます）",
+    "From the {app} app: {name}": "{app} アプリから：{name}",
+    "Drop .sim, .prm and .cmd files, a folder, or a .zip / .tar.gz to open it":
+        ".sim、.prm、.cmd ファイル、フォルダー、または .zip / .tar.gz をドロップすると開きます",
+    "IRSIM 9.7, Copyright (C) 1988, 1990 Stanford University; changed for this WebAssembly build in 2026 (the changes are listed in the source, About > This web app's source).":
+        "IRSIM 9.7、Copyright (C) 1988, 1990 Stanford University。2026 年にこの WebAssembly 版のために変更されています（変更点はソースに記載。「情報」>「このウェブアプリのソース」）。",
+    "IRSIM comes with ABSOLUTELY NO WARRANTY. It is free software: you may redistribute it under the terms of the GNU General Public License; About > IRSIM license shows a copy.":
+        "IRSIM は完全に無保証です。IRSIM はフリーソフトウェアであり、GNU 一般公衆利用許諾書（GPL）の条件のもとで再頒布できます。その写しは「情報」>「IRSIM のライセンス」にあります。",
+});
+
+topEdgeResizer($("#console"), desktop, {label: "Resize the console"});
 
 const EXAMPLES = {
     full_adder: "Mirror full adder, sized for speed (default)",
@@ -96,16 +229,16 @@ const traceManager = app.traceManager = new TraceManager(app);
 function updateStatus() {
     $("#stop").hidden = !session.busy;
     if(session.busy) {
-        statusEl.textContent = `Running ${session.current}…`;
+        statusEl.textContent = t("Running {command}…", {command: session.current});
         return;
     }
     if(!project) {
-        statusEl.textContent = "Ready";
+        statusEl.textContent = t("Ready");
         return;
     }
-    const where = project.store ? (project.syncError ? ` · not saved to ${project.store.label}!` : ` · kept in ${project.store.label}`) :
-        " · in memory only";
-    const circuit = session.started ? project.setup.sims.join(" ") : "no circuit";
+    const where = project.store ? t(project.syncError ? " · not saved to {where}!" : " · kept in {where}", {where: project.store.label}) :
+        t(" · in memory only");
+    const circuit = session.started ? project.setup.sims.join(" ") : t("no circuit");
     statusEl.textContent = `${project.name}: ${circuit} · ${formatNs(session.time / session.unitsPerNs)} ns${where}`;
 }
 
@@ -126,7 +259,7 @@ function frontEnd(line) {
         return null;
     }
     if(cmd === "exit" || cmd === "q") {
-        print("The session stays open in the browser; Project > Restart simulation starts it again.", "info");
+        print(t("The session stays open in the browser; Project > Restart simulation starts it again."), "info");
         return null;
     }
     return line;
@@ -142,7 +275,7 @@ async function run(line, {echo = true} = {}) {
         return;
     }
     if(!session.started) {
-        print("No circuit is running: open one from Examples or Project.", "error");
+        print(t("No circuit is running: open one from Examples or Project."), "error");
         return;
     }
     try {
@@ -179,7 +312,7 @@ async function prmFile(setup) {
         const url = PRM_URL(setup.prm);
         const response = await fetch(url);
         if(!response.ok) {
-            throw new Error(`Couldn't load the parameter file ${url}: HTTP ${response.status}`);
+            throw new Error(t("Couldn't load the parameter file {url}: HTTP {status}", {url, status: response.status}));
         }
         return {path: `/prm/${setup.prm}.prm`, data: new Uint8Array(await response.arrayBuffer())};
     }
@@ -190,14 +323,14 @@ async function prmFile(setup) {
 async function startSimulation() {
     analyzer.reset();
     if(!project.setup.sims.length) {
-        print("The project has no .sim file to simulate. Add one (Project > Open files) or choose one in Project > Simulation setup.", "error");
+        print(t("The project has no .sim file to simulate. Add one (Project > Open files) or choose one in Project > Simulation setup."), "error");
         session.started = false;
         updateStatus();
         return;
     }
     for(const path of [project.setup.prm, ...project.setup.sims]) {
         if(/\s/.test(path)) {
-            print(`"${path}": IRSIM can't take file names with spaces; please rename it.`, "error");
+            print(t("\"{path}\": IRSIM can't take file names with spaces; please rename it.", {path}), "error");
         }
     }
     const builtIn = await prmFile(project.setup);
@@ -208,7 +341,7 @@ async function startSimulation() {
     project.synced = new Map((await session.listFiles()).map(f => [f.path, f.mtime]));
     filesWindow.refresh();
     if(!ok) {
-        print("IRSIM could not start on these files.", "error");
+        print(t("IRSIM could not start on these files."), "error");
     } else {
         traceManager.reload();
         if(project.setup.cmd) {
@@ -224,13 +357,13 @@ async function loadProject(name, files, store = null, setup = {}) {
     files = store ? files.filter(f => f.path) : stripCommonFolder(files.filter(f => f.path));
     name = name.replace(/\.(zip|tar|tgz|tar\.gz|sim|cmd|prm)$/i, "").replace(/[^\w.-]+/g, "_") || "project";
     if(!files.length && !store) {
-        print("No files to load.", "error");
+        print(t("No files to load."), "error");
         return false;
     }
     const defaults = defaultSetup(name, files);
     project = {name, files, store, synced: new Map(), setup: {...defaults, prm: setup.prm || defaults.prm, cmd: setup.cmd || defaults.cmd}};
     document.title = `${name} · IRSIM`;
-    print(`Opened ${name}: ${files.map(f => f.path).join(", ") || "no files yet"}`, "info");
+    print(files.length ? t("Opened {name}: {files}", {name, files: files.map(f => f.path).join(", ")}) : t("Opened {name}: no files yet", {name}), "info");
     currentRun = startSimulation();
     await currentRun;
     return true;
@@ -239,7 +372,7 @@ async function loadProject(name, files, store = null, setup = {}) {
 // An example is <name>.sim and <name>.cmd in examples/, or a folder, examples/<name>/, of the
 // files it lists, with the setup it gives (a built-in parameter file, the command file to run).
 async function loadExample(name) {
-    statusEl.textContent = `Loading ${name}…`;
+    statusEl.textContent = t("Loading {name}…", {name});
     const example = EXAMPLES[name];
     const paths = example.files ? example.files.map(f => [`examples/${name}/${f}`, f]) :
         ["sim", "cmd"].map(ext => [`examples/${name}.${ext}`, `${name}.${ext}`]);
@@ -248,7 +381,7 @@ async function loadExample(name) {
         const url = here(path);
         const response = await fetch(url);
         if(!response.ok) {
-            throw new Error(`Couldn't load the example ${url}: HTTP ${response.status}`);
+            throw new Error(t("Couldn't load the example {url}: HTTP {status}", {url, status: response.status}));
         }
         files.push({path: file, data: new Uint8Array(await response.arrayBuffer())});
     }
@@ -260,7 +393,8 @@ async function setupDialog() {
         return;
     }
     const paths = project.files.map(f => f.path);
-    const prms = [...paths.filter(p => /\.prm$/i.test(p)).map(p => [p, p + " (project)"]), ...BUILT_IN_PRMS.map(p => [p, p + " (built in)"])];
+    const prms = [...paths.filter(p => /\.prm$/i.test(p)).map(p => [p, t("{name} (project)", {name: p})]),
+        ...BUILT_IN_PRMS.map(p => [p, t("{name} (built in)", {name: p})])];
     const v = await ask({title: "Simulation setup", message: "IRSIM restarts with these files.", fields: [
         {name: "prm", label: "Parameter file (.prm)", options: prms},
         {name: "sims", label: "Network files (.sim), separated by spaces", value: project.setup.sims.join(" "),
@@ -276,7 +410,7 @@ async function setupDialog() {
 
 async function restart() {
     if(project) {
-        print("Restarting the simulation.", "info");
+        print(t("Restarting the simulation."), "info");
         await startSimulation();
     }
 }
@@ -321,12 +455,12 @@ async function syncProject() {
         }
         current.syncError = null;
         if(written.length) {
-            print(`Saved ${written.join(", ")} to ${current.store.label}`, "info");
+            print(t("Saved {files} to {where}", {files: written.join(", "), where: current.store.label}), "info");
             filesWindow.refresh();
         }
     } catch(error) {
         current.syncError = error;
-        print(`Couldn't save to ${current.store.label}: ${error.message || error}`, "error");
+        print(t("Couldn't save to {where}: {why}", {where: current.store.label, why: error.message || error}), "error");
     } finally {
         syncing = false;
         updateStatus();
@@ -356,10 +490,10 @@ async function refreshRecent() {
 }
 
 async function openStore(store) {
-    statusEl.textContent = `Reading ${store.label}…`;
+    statusEl.textContent = t("Reading {where}…", {where: store.label});
     const files = await store.readAll();
     if(await loadProject(store.name, files, store)) {
-        print(`Working in ${store.label}: files IRSIM writes and your edits are saved there.`, "info");
+        print(t("Working in {where}: files IRSIM writes and your edits are saved there.", {where: store.label}), "info");
     }
     refreshRecent();
 }
@@ -375,7 +509,8 @@ async function keepProject(store) {
     project.store = store;
     project.files = files;
     project.synced = new Map((session.started ? await session.listFiles() : []).map(f => [f.path, f.mtime]));
-    print(`Saved ${files.length} file${files.length === 1 ? "" : "s"} to ${store.label}; later changes go there too.`, "info");
+    print(t(files.length === 1 ? "Saved 1 file to {where}; later changes go there too." : "Saved {n} files to {where}; later changes go there too.",
+        {n: files.length, where: store.label}), "info");
     updateStatus();
     refreshRecent();
 }
@@ -387,7 +522,7 @@ async function download() {
     const files = await currentFiles();
     saveBlob(project.name + ".tar.gz", new Blob([await writeTarGz(files.map(f => ({path: project.name + "/" + f.path, data: f.data})))],
         {type: "application/gzip"}));
-    print(`Saved ${files.length} file${files.length === 1 ? "" : "s"} to ${project.name}.tar.gz`, "info");
+    print(t(files.length === 1 ? "Saved 1 file to {name}" : "Saved {n} files to {name}", {n: files.length, name: project.name + ".tar.gz"}), "info");
 }
 
 async function attempt(work) {
@@ -422,13 +557,14 @@ function projectMenu() {
     if(recent.length) {
         items.push("-");
         for(const entry of recent.slice(0, 8)) {
-            items.push({label: `Reopen ${entry.name} (${entry.kind === "disk" ? "folder" : "browser storage"})`,
+            items.push({label: t(entry.kind === "disk" ? "Reopen {name} (folder)" : "Reopen {name} (browser storage)", {name: entry.name}),
                 action: () => attempt(async () => openStore(await reopen(entry)))});
         }
         items.push({label: "Forget recent projects…", action: () => attempt(async () => {
             const stored = recent.filter(e => e.kind === "browser").map(e => e.name);
-            const warning = stored.length ? ` This deletes ${stored.join(", ")} from browser storage.` : "";
-            if(window.confirm(`Forget the recent projects?${warning} Folders on disk are not touched.`)) {
+            const question = stored.length ? t("Forget the recent projects? This deletes {names} from browser storage. Folders on disk are not touched.",
+                {names: stored.join(", ")}) : t("Forget the recent projects? Folders on disk are not touched.");
+            if(window.confirm(question)) {
                 for(const entry of recent) {
                     await forget(entry.id);
                 }
@@ -471,11 +607,12 @@ class FilesWindow {
             title: "Files", x: 16, y: 12, width: Math.min(560, desktop.clientWidth - 32), height: Math.min(340, desktop.clientHeight - 24),
             onClose: () => this.close(),
         });
-        this.fw.body.innerHTML = '<div class="files-body"><ul class="files-list" role="listbox" aria-label="Project files"></ul>' +
-            '<div class="files-edit"><div class="files-bar"><button type="button" data-act="save" title="Write the file (Ctrl+S)">Save</button>' +
-            '<button type="button" data-act="run" title="Run it as a command file">Run</button>' +
-            '<button type="button" data-act="new">New…</button><button type="button" data-act="download">Download</button><span></span></div>' +
-            '<textarea spellcheck="false" aria-label="File contents"></textarea></div></div>';
+        this.fw.body.innerHTML = '<div class="files-body"><ul class="files-list" role="listbox" data-i18n-aria-label="Project files"></ul>' +
+            '<div class="files-edit"><div class="files-bar"><button type="button" data-act="save" data-i18n="Save" data-i18n-title="Write the file (Ctrl+S)"></button>' +
+            '<button type="button" data-act="run" data-i18n="Run" data-i18n-title="Run it as a command file"></button>' +
+            '<button type="button" data-act="new" data-i18n="New…"></button><button type="button" data-act="download" data-i18n="Download"></button><span></span></div>' +
+            '<textarea spellcheck="false" data-i18n-aria-label="File contents"></textarea></div></div>';
+        applyStatic(this.fw.body);
         this.list = this.fw.body.querySelector(".files-list");
         paneResizer(this.list, {label: "Resize the file list", storageKey: "irsim-files-list-width"});
         this.text = this.fw.body.querySelector("textarea");
@@ -530,7 +667,7 @@ class FilesWindow {
         this.path = path;
         const data = session.started ? await session.readFile(path) : project.files.find(f => f.path === path)?.data;
         const big = data && data.length > 2e6;
-        this.text.value = !data ? "" : big ? `(${data.length} bytes: too big to show)` : decoder.decode(data);
+        this.text.value = !data ? "" : big ? t("({n} bytes: too big to show)", {n: data.length}) : decoder.decode(data);
         this.text.readOnly = big;
         this.label.textContent = path;
         for(const li of this.list.children) {
@@ -546,7 +683,7 @@ class FilesWindow {
         await session.writeFile(this.path, data);
         const known = project.files.find(f => f.path === this.path);
         known ? (known.data = data) : project.files.push({path: this.path, data});
-        print(`Wrote ${this.path}${/\.(sim|prm)$/i.test(this.path) ? " (Project > Restart simulation reads it again)" : ""}`, "info");
+        print(t(/\.(sim|prm)$/i.test(this.path) ? "Wrote {path} (Project > Restart simulation reads it again)" : "Wrote {path}", {path: this.path}), "info");
         scheduleSync();
     }
 
@@ -593,7 +730,7 @@ async function openFiles(fileList, folderName) {
     try {
         const list = Array.from(fileList);
         if(list.length === 1 && isArchive(list[0].name)) {
-            statusEl.textContent = `Reading ${list[0].name}…`;
+            statusEl.textContent = t("Reading {where}…", {where: list[0].name});
             await loadProject(list[0].name, await readArchive(list[0].name, new Uint8Array(await list[0].arrayBuffer())));
             return;
         }
@@ -766,11 +903,24 @@ window.addEventListener("resize", () => analyzer.draw());
 // The notice the GNU General Public License asks for when an interactive program starts:
 // copyright, no warranty, redistribution, and where the licence is.
 function announce() {
-    print("IRSIM 9.7, Copyright (C) 1988, 1990 Stanford University; changed for this WebAssembly build in 2026 (the " +
-        "changes are listed in the source, About > This web app's source).", "info");
-    print("IRSIM comes with ABSOLUTELY NO WARRANTY. It is free software: you may redistribute it under the terms of the " +
-        "GNU General Public License; About > IRSIM license shows a copy.", "info");
+    print(t("IRSIM 9.7, Copyright (C) 1988, 1990 Stanford University; changed for this WebAssembly build in 2026 (the " +
+        "changes are listed in the source, About > This web app's source)."), "info");
+    print(t("IRSIM comes with ABSOLUTELY NO WARRANTY. It is free software: you may redistribute it under the terms of the " +
+        "GNU General Public License; About > IRSIM license shows a copy."), "info");
 }
+
+// The page's static text, the language button, and what to redo when the language changes.
+applyStatic();
+$("#help-toggle").before(languageButton());
+const dropText = () => (desktop.dataset.drop = t("Drop .sim, .prm and .cmd files, a folder, or a .zip / .tar.gz to open it"));
+dropText();
+onLanguageChange(() => {
+    dropText();
+    updateStatus();
+    if(filesWindow.text?.readOnly) {
+        filesWindow.show(filesWindow.path);
+    }
+});
 
 async function start() {
     const handed = receiveProject();
@@ -779,7 +929,7 @@ async function start() {
     // A project from another of the apps (Magic's Open in the IRSIM App), or an example.
     const sent = await handed;
     if(sent) {
-        print(`From the ${sent.from} app: ${sent.name}`, "info");
+        print(t("From the {app} app: {name}", {app: sent.from, name: sent.name}), "info");
         await loadProject(sent.name, sent.files, null, sent.setup);
     } else {
         const name = new URLSearchParams(location.search).get("example");

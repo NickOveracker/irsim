@@ -5,6 +5,22 @@
 // one on the right to take it out.
 
 import {FloatingWindow} from "./floating-window.js";
+import {t, register, applyStatic, onLanguageChange} from "./i18n.js";
+
+// This window's text in Japanese (i18n.js), here rather than in an app, since the Magic app
+// loads this file too.  Node and vector names stay as they are.
+register({
+    "IRSIM node and vector lists": "IRSIM のノードとベクトルの一覧",
+    "Filter (a * wildcard is fine)": "絞り込み（* ワイルドカード可）",
+    "Filter names": "名前の絞り込み",
+    "Add every node that matches the filter": "絞り込みに一致するノードをすべて追加します",
+    "Add matching": "一致するものを追加",
+    "Nodes": "ノード",
+    "Nodes in Analyzer": "アナライザー内のノード",
+    "Vectors": "ベクトル",
+    "Vectors in Analyzer": "アナライザー内のベクトル",
+    "… {n} more (use the filter)": "… ほか {n} 個（絞り込みを使ってください）",
+});
 
 const STYLES = `
 .tm-body { display: flex; flex-direction: column; height: 100%; font-size: 12px; }
@@ -33,6 +49,12 @@ export class TraceManager {
             style.textContent = STYLES;
             document.head.appendChild(style);
         }
+        onLanguageChange(() => {
+            if(this.fw) {
+                applyStatic(this.fw.body);
+                this.refresh();
+            }
+        });
     }
 
     isOpen() {
@@ -54,13 +76,14 @@ export class TraceManager {
         });
         const body = document.createElement("div");
         body.className = "tm-body";
-        body.innerHTML = '<div class="tm-bar"><input type="search" placeholder="Filter (a * wildcard is fine)" aria-label="Filter names">' +
-            '<button type="button" data-act="all" title="Add every node that matches the filter">Add matching</button></div>' +
+        body.innerHTML = '<div class="tm-bar"><input type="search" data-i18n-placeholder="Filter (a * wildcard is fine)" data-i18n-aria-label="Filter names">' +
+            '<button type="button" data-act="all" data-i18n-title="Add every node that matches the filter" data-i18n="Add matching"></button></div>' +
             '<div class="tm-grid">' +
-            '<section class="tm-pane"><h3>Nodes</h3><ul class="tm-list" data-list="nodes"></ul></section>' +
-            '<section class="tm-pane"><h3>Nodes in Analyzer</h3><ul class="tm-list" data-list="usednodes"></ul></section>' +
-            '<section class="tm-pane"><h3>Vectors</h3><ul class="tm-list" data-list="vectors"></ul></section>' +
-            '<section class="tm-pane"><h3>Vectors in Analyzer</h3><ul class="tm-list" data-list="usedvectors"></ul></section></div>';
+            '<section class="tm-pane"><h3 data-i18n="Nodes"></h3><ul class="tm-list" data-list="nodes"></ul></section>' +
+            '<section class="tm-pane"><h3 data-i18n="Nodes in Analyzer"></h3><ul class="tm-list" data-list="usednodes"></ul></section>' +
+            '<section class="tm-pane"><h3 data-i18n="Vectors"></h3><ul class="tm-list" data-list="vectors"></ul></section>' +
+            '<section class="tm-pane"><h3 data-i18n="Vectors in Analyzer"></h3><ul class="tm-list" data-list="usedvectors"></ul></section></div>';
+        applyStatic(body);
         this.fw.body.appendChild(body);
         this.filter = body.querySelector("input");
         this.filter.addEventListener("input", () => this.refresh());
@@ -129,7 +152,7 @@ export class TraceManager {
             if(items.length > LIMIT) {
                 const li = document.createElement("li");
                 li.className = "tm-more";
-                li.textContent = `… ${items.length - LIMIT} more (use the filter)`;
+                li.textContent = t("… {n} more (use the filter)", {n: items.length - LIMIT});
                 ul.appendChild(li);
             }
         };

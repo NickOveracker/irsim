@@ -18,9 +18,83 @@
 import {FloatingWindow} from "./floating-window.js";
 import {menuBar} from "./menu.js";
 import {ask} from "./dialog.js";
+import {t, register, applyStatic, onLanguageChange} from "./i18n.js";
+
+// The analyzer's text in Japanese (i18n.js), here rather than in an app, since the Magic app
+// loads this file too.  Node and vector names stay as they are.
+register({
+    "Analyzer": "アナライザー",
+    "Analyzer menu": "アナライザーのメニュー",
+    "logic analyzer display": "ロジックアナライザー表示",
+    "Traces": "トレース",
+    "Waveforms": "波形",
+    "Values at the marker": "マーカー位置の値",
+    "No traces. Add some with Window > Manage Traces, or the ana command (for example: ana A B Y).":
+        "トレースはありません。「ウィンドウ」>「トレースの管理」か、ana コマンド（例：ana A B Y）で追加できます。",
+    "Show all (v)": "全体を表示（v）",
+    "To the beginning": "先頭へ",
+    "Step left (←; Shift: further)": "左へ移動（←、Shift で大きく）",
+    "View position: click to centre, right-drag or Shift-drag an edge to resize":
+        "表示位置：クリックで中央に移動、右ドラッグか Shift+ドラッグで端を動かして幅を変更",
+    "Step right (→; Shift: further)": "右へ移動（→、Shift で大きく）",
+    "To the end": "末尾へ",
+    "{name} (vector: {bits})": "{name}（ベクトル：{bits}）",
+    "Remove from the analyzer": "アナライザーから削除します",
+    "Remove {name}": "{name} を削除",
+    "{marker} {delta} (delta = {difference})": "{marker} {delta}（差 = {difference}）",
+    "now {time} ns": "現在 {time} ns",
+    // Menus
+    "Zoom": "ズーム",
+    "In": "拡大",
+    "Out": "縮小",
+    "Full": "全体",
+    "Base": "基数",
+    "Binary": "2 進数",
+    "Octal": "8 進数",
+    "Unsigned Decimal": "符号なし 10 進数",
+    "Signed Decimal": "符号付き 10 進数",
+    "Hex": "16 進数",
+    "Window": "ウィンドウ",
+    "Manage Traces": "トレースの管理",
+    "Name Length": "名前の長さ",
+    "Scroll": "スクロール",
+    "Scroll Step": "スクロールのステップ",
+    "Shift Step": "Shift でのステップ",
+    "Move To…": "移動…",
+    "Set Width…": "幅を設定…",
+    "Remove Selected Trace": "選択したトレースを削除",
+    "Clear All Traces": "すべてのトレースを消去",
+    "Print": "印刷",
+    "File…": "ファイルに出力…",
+    "Title…": "タイトル…",
+    "Banner": "バナー",
+    "Legend": "凡例",
+    "Times": "時刻",
+    "Outline": "枠線",
+    // Dialogs
+    "Name length": "名前の長さ",
+    "Characters of each name to show (0: all)": "各名前に表示する文字数（0：すべて）",
+    "Scroll step": "スクロールのステップ",
+    "Step for ← and → in ns (empty: a tenth of the view)": "← と → で動く幅、ns 単位（空欄：表示幅の 10 分の 1）",
+    "Shift step": "Shift でのステップ",
+    "Step for Shift+← and Shift+→ in ns (empty: half the view)": "Shift+← と Shift+→ で動く幅、ns 単位（空欄：表示幅の半分）",
+    "Move to": "移動",
+    "Time at the left edge, in ns": "左端の時刻、ns 単位",
+    "Set width": "幅を設定",
+    "Width of the view, in ns": "表示幅、ns 単位",
+    "Title": "タイトル",
+    "Print to file": "ファイルに出力",
+    "Banner, Legend, Times and Outline in the Print menu choose what goes on the page.":
+        "「印刷」メニューの「バナー」「凡例」「時刻」「枠線」で、ページに載せる内容を選べます。",
+    "Format": "形式",
+    "PNG image (.png)": "PNG 画像（.png）",
+    "File name": "ファイル名",
+    "Save": "保存",
+});
 
 const ROW = 26, RULER = 18;
 const BASES = [["bin", "Binary"], ["oct", "Octal"], ["udec", "Unsigned Decimal"], ["sdec", "Signed Decimal"], ["hex", "Hex"]];
+const DEFAULT_TITLE = "logic analyzer display";
 const DIGITS_TO_BASE = {1: "bin", 3: "oct", 4: "hex"};
 
 const STYLES = `
@@ -338,7 +412,7 @@ export class Analyzer {
         this.follow = true;            // Show the whole run until the user zooms or pans
         this.begin = 0;
         this.end = 0;
-        this.opts = {base: "bin", scroll: true, step: null, sstep: null, nameLength: 0, title: "logic analyzer display",
+        this.opts = {base: "bin", scroll: true, step: null, sstep: null, nameLength: 0, title: DEFAULT_TITLE,
             banner: true, legend: true, times: true, outline: true};
         this.fw = null;
         this.fetching = null;
@@ -348,6 +422,22 @@ export class Analyzer {
             style.textContent = STYLES;
             document.head.appendChild(style);
         }
+        onLanguageChange(() => this.translate());
+    }
+
+    // The title as shown: the default one in the page's language, the user's as it is.
+    shownTitle() {
+        return this.opts.title === DEFAULT_TITLE ? t(DEFAULT_TITLE) : this.opts.title;
+    }
+
+    translate() {
+        if(!this.fw) {
+            return;
+        }
+        applyStatic(this.fw.body);
+        this.titleEl.textContent = this.shownTitle();
+        this.namesSig = null;
+        this.draw();
     }
 
     get unit() {
@@ -450,21 +540,22 @@ export class Analyzer {
         const body = document.createElement("div");
         body.className = "an-body";
         body.innerHTML = '<div class="an-top"><span class="an-title"></span></div>' +
-            '<div class="an-scroll"><div class="an-scope"><div class="an-names" role="listbox" aria-label="Traces"></div>' +
-            '<canvas class="an-display" tabindex="0" aria-label="Waveforms"></canvas><div class="an-values" aria-label="Values at the marker"></div></div>' +
-            '<div class="an-empty" hidden>No traces. Add some with Window &gt; Manage Traces, or the ana command (for example: ana A B Y).</div></div>' +
+            '<div class="an-scroll"><div class="an-scope"><div class="an-names" role="listbox" data-i18n-aria-label="Traces"></div>' +
+            '<canvas class="an-display" tabindex="0" data-i18n-aria-label="Waveforms"></canvas><div class="an-values" data-i18n-aria-label="Values at the marker"></div></div>' +
+            '<div class="an-empty" hidden data-i18n="No traces. Add some with Window > Manage Traces, or the ana command (for example: ana A B Y)."></div></div>' +
             '<div class="an-times" aria-live="polite"><span></span><span></span><span></span></div>' +
-            '<div class="an-slide"><button type="button" data-act="full" title="Show all (v)">⤢</button>' +
-            '<button type="button" data-act="begin" title="To the beginning">⏮</button>' +
-            '<button type="button" data-act="left" title="Step left (←; Shift: further)">◀</button>' +
-            '<canvas class="an-slider" aria-label="View position: click to centre, right-drag or Shift-drag an edge to resize"></canvas>' +
-            '<button type="button" data-act="right" title="Step right (→; Shift: further)">▶</button>' +
-            '<button type="button" data-act="end" title="To the end">⏭</button></div>';
+            '<div class="an-slide"><button type="button" data-act="full" data-i18n-title="Show all (v)">⤢</button>' +
+            '<button type="button" data-act="begin" data-i18n-title="To the beginning">⏮</button>' +
+            '<button type="button" data-act="left" data-i18n-title="Step left (←; Shift: further)">◀</button>' +
+            '<canvas class="an-slider" data-i18n-aria-label="View position: click to centre, right-drag or Shift-drag an edge to resize"></canvas>' +
+            '<button type="button" data-act="right" data-i18n-title="Step right (→; Shift: further)">▶</button>' +
+            '<button type="button" data-act="end" data-i18n-title="To the end">⏭</button></div>';
+        applyStatic(body);
         this.fw.body.appendChild(body);
         const top = body.querySelector(".an-top");
         top.prepend(menuBar(this.menus(), "Analyzer menu", {onDone: () => this.display.focus({preventScroll: true})}));
         this.titleEl = body.querySelector(".an-title");
-        this.titleEl.textContent = this.opts.title;
+        this.titleEl.textContent = this.shownTitle();
         this.names = body.querySelector(".an-names");
         this.values = body.querySelector(".an-values");
         this.display = body.querySelector(".an-display");
@@ -780,10 +871,11 @@ export class Analyzer {
         const print = [
             {label: "File…", action: () => this.printDialog()},
             {label: "Title…", action: async () => {
-                const v = await ask({title: "Title", fields: [{name: "t", label: "Title", value: this.opts.title}]});
+                const v = await ask({title: "Title", fields: [{name: "t", label: "Title", value: this.shownTitle()}]});
                 if(v) {
-                    this.opts.title = v.t || "logic analyzer display";
-                    this.titleEl.textContent = this.opts.title;
+                    // The default title, left as it is, stays the default (and follows the language).
+                    this.opts.title = !v.t || v.t === t(DEFAULT_TITLE) ? DEFAULT_TITLE : v.t;
+                    this.titleEl.textContent = this.shownTitle();
                 }
             }},
             "-",
@@ -1049,20 +1141,20 @@ export class Analyzer {
         if(sig !== this.namesSig) {
             this.namesSig = sig;
             this.names.textContent = "";
-            for(const t of this.traces) {
+            for(const trace of this.traces) {
                 const row = document.createElement("div");
-                row.className = "an-name" + (t.name === this.selected ? " selected" : "");
-                row.dataset.name = t.name;
+                row.className = "an-name" + (trace.name === this.selected ? " selected" : "");
+                row.dataset.name = trace.name;
                 row.setAttribute("role", "option");
-                row.setAttribute("aria-selected", String(t.name === this.selected));
-                row.title = t.kind === "vector" ? `${t.name} (vector: ${t.bits.join(" ")})` : t.name;
-                row.textContent = this.shownName(t.name);
+                row.setAttribute("aria-selected", String(trace.name === this.selected));
+                row.title = trace.kind === "vector" ? t("{name} (vector: {bits})", {name: trace.name, bits: trace.bits.join(" ")}) : trace.name;
+                row.textContent = this.shownName(trace.name);
                 const x = document.createElement("button");
                 x.type = "button";
                 x.className = "an-x";
                 x.textContent = "✕";
-                x.title = "Remove from the analyzer";
-                x.setAttribute("aria-label", "Remove " + t.name);
+                x.title = t("Remove from the analyzer");
+                x.setAttribute("aria-label", t("Remove {name}", {name: trace.name}));
                 row.appendChild(x);
                 this.names.appendChild(row);
             }
@@ -1220,10 +1312,11 @@ export class Analyzer {
         if(this.marker !== null) {
             mid = formatNs(this.ns(this.marker));
             if(this.delta !== null) {
-                mid += ` ${formatNs(this.ns(this.delta))} (delta = ${formatNs(this.ns(this.delta - this.marker))})`;
+                mid = t("{marker} {delta} (delta = {difference})", {marker: mid, delta: formatNs(this.ns(this.delta)),
+                    difference: formatNs(this.ns(this.delta - this.marker))});
             }
         }
-        this.timeEls[1].textContent = mid ? mid + " ns" : `now ${formatNs(this.ns(this.end))} ns`;
+        this.timeEls[1].textContent = mid ? mid + " ns" : t("now {time} ns", {time: formatNs(this.ns(this.end))});
     }
 
     drawSlider(c) {
@@ -1248,7 +1341,8 @@ export class Analyzer {
         const nameWidth = this.opts.legend ? Math.max(60, ...this.traces.map(t => pen.textWidth(this.shownName(t.name), 11) + 16)) : 0;
         let y = 10;
         if(this.opts.banner) {
-            pen.text(10, y + 8, this.opts.title, c.fg, 14, "left", false);
+            // PostScript's fonts have no Japanese: the default title stays in English there.
+            pen.text(10, y + 8, pen instanceof PsPen ? this.opts.title : this.shownTitle(), c.fg, 14, "left", false);
             pen.text(width - 10, y + 8, new Date().toLocaleString(), c.muted, 10, "right", false);
             y += 26;
         }

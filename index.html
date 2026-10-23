@@ -84,7 +84,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 #help p { margin: 6px 0; }
 #help code { font-family: var(--mono); }
 
-body.dragging #desktop::after { content: "Drop .sim, .prm and .cmd files, a folder, or a .zip / .tar.gz to open it"; position: absolute;
+body.dragging #desktop::after { content: attr(data-drop); position: absolute;
   inset: 12px; display: grid; place-items: center; border: 2px dashed var(--accent); border-radius: 12px;
   background: color-mix(in srgb, var(--panel) 85%, transparent); font-size: 16px; z-index: 900001; }
 
@@ -96,19 +96,21 @@ body.dragging #desktop::after { content: "Drop .sim, .prm and .cmd files, a fold
 </head>
 <body>
 <header class="toolbar">
-  <h1>IRSIM <small>switch-level simulator · WebAssembly</small></h1>
+  <h1>IRSIM <small data-i18n="switch-level simulator · WebAssembly">switch-level simulator · WebAssembly</small></h1>
   <div id="top-menus"></div>
-  <button type="button" id="help-toggle" aria-expanded="false" aria-controls="help">Help</button>
-  <button type="button" id="stop" hidden title="Stop the command that is running">Stop</button>
-  <span id="status" role="status">Loading…</span>
-  <a id="kofi" href="https://ko-fi.com/twentynine" target="_blank" rel="noopener"><span aria-hidden="true">♥</span>Support on Ko-fi</a>
+  <button type="button" id="help-toggle" aria-expanded="false" aria-controls="help" data-i18n="Help">Help</button>
+  <button type="button" id="stop" hidden data-i18n-title="Stop the command that is running" data-i18n="Stop">Stop</button>
+  <span id="status" role="status" data-i18n="Loading…">Loading…</span>
+  <a id="kofi" href="https://ko-fi.com/twentynine" target="_blank" rel="noopener"><span aria-hidden="true">♥</span><span
+    data-i18n="Support on Ko-fi">Support on Ko-fi</span></a>
   <input type="file" id="pick-files" multiple hidden accept=".sim,.prm,.cmd,.zip,.tar,.tgz,.gz,.txt,.hist,.net">
   <input type="file" id="pick-folder" webkitdirectory hidden>
 </header>
 
-<main id="desktop" aria-label="IRSIM windows"></main>
+<main id="desktop" data-i18n-aria-label="IRSIM windows"></main>
 
 <aside id="help" hidden>
+ <div data-only="en">
   <h2>Commands</h2>
   <p>Type IRSIM commands below, as at its <code>irsim&gt;</code> prompt. A few to start with:</p>
   <dl>
@@ -139,12 +141,45 @@ body.dragging #desktop::after { content: "Drop .sim, .prm and .cmd files, a fold
   <p>To keep your work, <b>work in a folder on disk</b> (Chrome, Edge and other Chromium browsers) or <b>keep the project in
     browser storage</b> (any browser): files IRSIM writes (logfile, dumph, wnet…) and your edits in the Files window are
     saved there. Otherwise files live in memory until you download them.</p>
+ </div>
+ <div data-only="ja" lang="ja">
+  <h2>コマンド</h2>
+  <p>下の欄に、IRSIM の <code>irsim&gt;</code> プロンプトと同じように IRSIM のコマンドを入力します。まずは次のようなものがあります。</p>
+  <dl>
+    <dt>h A · l A · x A</dt><dd>ノード A を high、low に駆動します／駆動をやめます（X）</dd>
+    <dt>s · s 50</dt><dd>1 ステップ、または 50 ns 進めます</dd>
+    <dt>vector a A B C</dt><dd>ベクトル（バス）を作ります。最上位ビットが先頭です。<code>set a 101</code> で駆動します</dd>
+    <dt>ana A B a</dt><dd>ノードとベクトルをアナライザーに表示します（<code>w</code>、<code>watchnode</code> も可）</dd>
+    <dt>clock C 0 1 · c</dt><dd>クロックを定義し、1 サイクル実行します</dd>
+    <dt>d A a · t A</dt><dd>現在の値を表示します／変化するたびに表示します</dd>
+    <dt>@ file.cmd</dt><dd>コマンドファイルを実行します</dd>
+    <dt>help</dt><dd>すべてのコマンド</dd>
+  </dl>
+  <p>上下の矢印キーで以前のコマンドを呼び出せます。時間がかかりすぎるコマンドは<b>停止</b>で止められます。IRSIM
+    が起動し直し、それまでのコマンドを再実行するので、同じ状態に戻ります。</p>
+  <h2>アナライザー</h2>
+  <dl>
+    <dt>クリック</dt><dd>マーカーを置き（その時刻の値が右に出ます）、トレースを選択します</dd>
+    <dt>右ドラッグ、Shift+ドラッグ</dt><dd>差分マーカー。続けて <code>z</code> でその区間に拡大します</dd>
+    <dt>中クリック、Esc</dt><dd>マーカーを消します</dd>
+    <dt>← → · Shift+← →</dt><dd>表示を移動します。<code>z</code> で縮小、<code>Z</code> で拡大、<code>v</code> で全体。Ctrl+ホイールで拡大縮小</dd>
+    <dt>名前</dt><dd>クリックで選択（「基数」が適用されます）、ドラッグで並べ替え、✕ で削除</dd>
+    <dt>スライダー</dt><dd>クリックかドラッグで表示の中央を移動、右ドラッグか Shift+ドラッグで端を移動</dd>
+  </dl>
+  <h2>プロジェクト</h2>
+  <p>「プロジェクト」>「ファイルを開く」「フォルダーを開く」で、.sim、.prm、.cmd ファイル、または .zip / .tar.gz
+    1 つをページにコピーします。ページにドロップしても開けます。IRSIM はプロジェクトの .prm（なければ組み込みの scmos100）と .sim
+    ファイルで起動し、同じ名前の .cmd ファイルがあればそれを実行します。別のファイルは「プロジェクト」>「シミュレーションの設定」で選べます。</p>
+  <p>作業内容を残すには、<b>ディスク上のフォルダーで作業</b>する（Chrome、Edge などの Chromium
+    系ブラウザー）か、<b>プロジェクトをブラウザーのストレージに保存</b>します（どのブラウザーでも可）。IRSIM
+    が書き出すファイル（logfile、dumph、wnet…）と、ファイルウィンドウでの編集内容はそこに保存されます。そうしない場合、ファイルはダウンロードするまでメモリ上にだけあります。</p>
+ </div>
 </aside>
 
-<section id="console" aria-label="IRSIM console">
+<section id="console" data-i18n-aria-label="IRSIM console">
   <div id="log" aria-live="polite"></div>
   <div class="command-row">
-    <button type="button" id="console-toggle" aria-expanded="true" aria-controls="log" title="Show or hide the console">☰</button>
+    <button type="button" id="console-toggle" aria-expanded="true" aria-controls="log" data-i18n-title="Show or hide the console">☰</button>
     <label for="command">irsim&gt;</label>
     <input id="command" autocomplete="off" spellcheck="false" placeholder="h A · s · ana A Y · help">
   </div>
