@@ -1,3 +1,12 @@
+/*
+ * Changes in the WebAssembly fork.
+ * Modified in the WebAssembly fork of IRSIM, https://github.com/NickOveracker/irsim
+ * (branch wasm).  Changes, with their dates:
+ *   2026-10-22  Fix pointer and argument mismatches between callers and definitions
+ *   2026-10-23  Fix walk_net() callbacks that took one argument
+ * End of the changes notice.
+ */
+
 #ifndef _GLOBALS_H
 #define _GLOBALS_H
 

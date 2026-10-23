@@ -13,6 +13,21 @@
  */
 
 /*
+ * This file was written for the WebAssembly fork of IRSIM, drawing on
+ * noana.c, the analyzer interface it implements, whose notice is above.  Like IRSIM, it is
+ * distributed under the GNU General Public License (the file COPYRIGHT at the
+ * top of the repository), WITHOUT ANY WARRANTY.
+ */
+
+/*
+ * Changes in the WebAssembly fork.
+ * Added in the WebAssembly fork of IRSIM, https://github.com/NickOveracker/irsim
+ * (branch wasm), on 2026-10-23.  Changes, with their dates:
+ *   2026-10-23  Add an interactive session and a web analyzer interface
+ * End of the changes notice.
+ */
+
+/*
  * The analyzer interface for the web build.  In place of the X11 analyzer
  * (or the "no analyzer" stubs of noana.c), every call is passed on to the
  * JavaScript object Module.irsimAna, which draws the traces in the page.

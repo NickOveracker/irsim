@@ -13,6 +13,14 @@
  */
 
 /*
+ * Changes in the WebAssembly fork.
+ * Modified in the WebAssembly fork of IRSIM, https://github.com/NickOveracker/irsim
+ * (branch wasm).  Changes, with their dates:
+ *   2026-10-22  Add a WebAssembly build and a browser demo
+ * End of the changes notice.
+ */
+
+/*
  *   This is a very low overhead storage allocator for managing many
  * "small" objects.
  *

@@ -13,6 +13,21 @@
  */
 
 /*
+ * This file was written for the WebAssembly fork of IRSIM, drawing on
+ * irsim.c (main() and input()), whose notice is above.  Like IRSIM, it is
+ * distributed under the GNU General Public License (the file COPYRIGHT at the
+ * top of the repository), WITHOUT ANY WARRANTY.
+ */
+
+/*
+ * Changes in the WebAssembly fork.
+ * Added in the WebAssembly fork of IRSIM, https://github.com/NickOveracker/irsim
+ * (branch wasm), on 2026-10-23.  Changes, with their dates:
+ *   2026-10-23  Add an interactive session and a web analyzer interface
+ * End of the changes notice.
+ */
+
+/*
  * An interactive IRSIM session for the web build.  irsim_web_start() does
  * what main() in irsim.c does up to the command prompt; after that the page
  * sends one command line at a time to irsim_web_command(), which is what

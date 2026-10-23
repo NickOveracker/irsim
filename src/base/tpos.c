@@ -12,6 +12,14 @@
  *     ********************************************************************* 
  */
 
+/*
+ * Changes in the WebAssembly fork.
+ * Modified in the WebAssembly fork of IRSIM, https://github.com/NickOveracker/irsim
+ * (branch wasm).  Changes, with their dates:
+ *   2026-10-23  Find transistors by position in lambda, as the .sim file gives them
+ * End of the changes notice.
+ */
+
 #include <stdio.h>
 #include "defs.h"
 #include "net.h"

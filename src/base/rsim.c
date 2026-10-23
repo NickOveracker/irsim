@@ -12,6 +12,19 @@
  *     ********************************************************************* 
  */
 
+/*
+ * Changes in the WebAssembly fork.
+ * Modified in the WebAssembly fork of IRSIM, https://github.com/NickOveracker/irsim
+ * (branch wasm).  Changes, with their dates:
+ *   2026-10-22  Fix pointer and argument mismatches between callers and definitions
+ *   2026-10-22  Fix the relax command's argument
+ *   2026-10-23  Fix apply() callbacks that took one argument
+ *   2026-10-23  Fix walk_net() callbacks that took one argument
+ *   2026-10-23  Don't walk the event table before "histev on" sets it up
+ *   2026-10-23  Add an interactive session and a web analyzer interface
+ * End of the changes notice.
+ */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>

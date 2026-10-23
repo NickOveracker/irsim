@@ -13,6 +13,14 @@
  */
 
 /*
+ * Changes in the WebAssembly fork.
+ * Modified in the WebAssembly fork of IRSIM, https://github.com/NickOveracker/irsim
+ * (branch wasm).  Changes, with their dates:
+ *   2026-10-23  Name the power node after the power net, not the name list
+ * End of the changes notice.
+ */
+
+/*
  * The routines in this file handle network input (from sim files).
  * The input routine "rd_network" replaces the work formerly done by presim.
  * This version differs from the former in the following:

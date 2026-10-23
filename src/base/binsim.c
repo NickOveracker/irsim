@@ -13,6 +13,14 @@
  */
 
 /*
+ * Changes in the WebAssembly fork.
+ * Modified in the WebAssembly fork of IRSIM, https://github.com/NickOveracker/irsim
+ * (branch wasm).  Changes, with their dates:
+ *   2026-10-22  Fix pointer and argument mismatches between callers and definitions
+ * End of the changes notice.
+ */
+
+/*
  * The routines in this file handle binary network files input/output.
  */
 

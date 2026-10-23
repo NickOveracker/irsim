@@ -13,6 +13,14 @@
  */
 
 /*
+ * Changes in the WebAssembly fork.
+ * Modified in the WebAssembly fork of IRSIM, https://github.com/NickOveracker/irsim
+ * (branch wasm).  Changes, with their dates:
+ *   2026-10-23  Pack and unpack 8-byte values in binary files
+ * End of the changes notice.
+ */
+
+/*
  * Macros to read/write machine-independent binary files.
  */
 

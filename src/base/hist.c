@@ -12,6 +12,14 @@
  *     ********************************************************************* 
  */
 
+/*
+ * Changes in the WebAssembly fork.
+ * Modified in the WebAssembly fork of IRSIM, https://github.com/NickOveracker/irsim
+ * (branch wasm).  Changes, with their dates:
+ *   2026-10-23  Fix walk_net() callbacks that took one argument
+ * End of the changes notice.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
