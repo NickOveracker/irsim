@@ -736,10 +736,13 @@ $("#top-menus").appendChild(menuBar([
     ["Examples", Object.entries(EXAMPLES).map(([name, label]) => ({label, action: () => attempt(() => loadExample(name))}))],
     ["Windows", windowsMenu],
     ["About", [
+        {label: "IRSIM (Open Circuit Design)", href: "https://opencircuitdesign.com/irsim/"},
+        {label: "IRSIM upstream source", href: "https://github.com/RTimothyEdwards/irsim"},
+        "-",
         {label: "IRSIM license (GPL 2)", href: "https://github.com/NickOveracker/irsim/blob/wasm/COPYRIGHT"},
         {label: "Emscripten runtime license (MIT)", href: "https://github.com/emscripten-core/emscripten/blob/main/LICENSE"},
         "-",
-        {label: "Source code", href: "https://github.com/NickOveracker/irsim/tree/wasm"},
+        {label: "This web app's source", href: "https://github.com/NickOveracker/irsim/tree/wasm"},
     ]],
 ], "Page menu", {onDone: home}));
 
