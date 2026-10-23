@@ -61,12 +61,12 @@ button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-
 #command { flex: 1; min-width: 0; font: 13px var(--mono); color: inherit; background: var(--log-bg);
   border: 1px solid var(--rule); border-radius: 5px; padding: 3px 6px; }
 
-.files-body { display: grid; grid-template-columns: minmax(110px, 30%) 1fr; height: 100%; font-size: 12px; }
-.files-list { margin: 0; padding: 4px 0; list-style: none; overflow: auto; border-right: 1px solid var(--rule); font: 12px var(--mono); }
+.files-body { display: flex; height: 100%; font-size: 12px; }
+.files-list { flex: none; width: 30%; min-width: 80px; margin: 0; padding: 4px 0; list-style: none; overflow: auto; font: 12px var(--mono); }
 .files-list li { padding: 2px 8px; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .files-list li:hover { background: var(--accent-soft); }
 .files-list li[aria-selected="true"] { background: var(--accent); color: #fff; }
-.files-edit { display: flex; flex-direction: column; min-width: 0; }
+.files-edit { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .files-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 4px; border-bottom: 1px solid var(--rule); }
 .files-bar button { font-size: 12px; min-height: 24px; padding: 1px 8px; }
 .files-bar span { color: var(--muted); margin-left: auto; font-family: var(--mono); }

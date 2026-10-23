@@ -6,7 +6,7 @@
 import {Session} from "./session.js";
 import {Analyzer, formatNs} from "./analyzer.js";
 import {TraceManager} from "./tracemgr.js";
-import {FloatingWindow, topEdgeResizer} from "./floating-window.js";
+import {FloatingWindow, topEdgeResizer, paneResizer} from "./floating-window.js";
 import {menuBar, closeMenus} from "./menu.js";
 import {ask, setHomeFocus} from "./dialog.js";
 import {readArchive, isArchive, stripCommonFolder, cleanPath, writeTarGz} from "./archive.js";
@@ -464,6 +464,7 @@ class FilesWindow {
             '<button type="button" data-act="new">New…</button><button type="button" data-act="download">Download</button><span></span></div>' +
             '<textarea spellcheck="false" aria-label="File contents"></textarea></div></div>';
         this.list = this.fw.body.querySelector(".files-list");
+        paneResizer(this.list, {label: "Resize the file list", storageKey: "irsim-files-list-width"});
         this.text = this.fw.body.querySelector("textarea");
         this.label = this.fw.body.querySelector(".files-bar span");
         this.list.addEventListener("click", e => {
