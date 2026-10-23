@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 // Manage Traces: the web counterpart of the Tk "IRSIM node and vector lists"
 // window (.nodelist in tcltk/irsim.tcl.in).  Click a node or vector on the
 // left to add it to the analyzer (through IRSIM's own "ana" command); click

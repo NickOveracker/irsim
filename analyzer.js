@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 // The logic analyzer: the web counterpart of IRSIM's Tk analyzer window
 // (the analyzer section of tcltk/irsim.tcl.in) and of the X11 analyzer.
 //

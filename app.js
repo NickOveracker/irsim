@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 // IRSIM in the browser: the console, the session (session.js, worker.js),
 // the analyzer (analyzer.js), the trace manager (tracemgr.js), a Files
 // window, and projects (files, folders, archives, a folder on disk or the
@@ -741,6 +742,7 @@ $("#top-menus").appendChild(menuBar([
         {label: "IRSIM upstream source", href: "https://github.com/RTimothyEdwards/irsim"},
         "-",
         {label: "IRSIM license (GPL 2)", href: "https://github.com/NickOveracker/irsim/blob/wasm/COPYRIGHT"},
+        {label: "Web app license (GPL 2 or later)", href: "https://github.com/NickOveracker/irsim/blob/wasm/licenses/GPL-2.0.txt"},
         {label: "Emscripten runtime license (MIT)", href: "https://github.com/NickOveracker/irsim/blob/wasm/licenses/emscripten-LICENSE"},
         "-",
         {label: "This web app's source", href: "https://github.com/NickOveracker/irsim/tree/wasm"},

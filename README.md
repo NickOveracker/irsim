@@ -120,10 +120,11 @@ x86-64 fail here. Fixing them turned up several real bugs, which are separate co
 ## Licence
 
 IRSIM is distributed under the GNU General Public License, version 2 (the file `COPYRIGHT`); its source files carry
-Stanford University's notice of 1988 and 1990. This fork as a whole, including the web app (the HTML, JavaScript and CSS
-at the top), `build.sh`, `run-node.js` and the examples, is distributed under the same licence, at no charge, WITHOUT ANY
-WARRANTY. The module also contains the Emscripten runtime, under its own permissive licence
-(`licenses/emscripten-LICENSE`).
+Stanford University's notice of 1988 and 1990. This fork's new code (the web app, the HTML, JavaScript and CSS at the
+top; `build.sh`; `run-node.js`; `src/irsim/irsimweb.c` and `src/analyzer/webana.c`; the examples) is under the GNU
+General Public License, version 2 or (at your option) any later version (`licenses/GPL-2.0.txt`), and the fork as a
+whole is distributed under version 2, at no charge, WITHOUT ANY WARRANTY. The module also contains the Emscripten
+runtime, under its own permissive licence (`licenses/emscripten-LICENSE`).
 
 As the licence asks, the files under `src/` that this fork changed or added carry a notice saying so, with the date and
 subject of each change. The app shows IRSIM's copyright, the absence of warranty and the terms for redistribution in its

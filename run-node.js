@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 // Run irsim.wasm on a .sim file with a command script, the way a browser page would.
 const fs = require('fs');
 const createIrsim = require('./irsim.js');

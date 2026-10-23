@@ -15,8 +15,9 @@
 /*
  * This file was written for the WebAssembly fork of IRSIM, drawing on
  * noana.c, the analyzer interface it implements, whose notice is above.  Like IRSIM, it is
- * distributed under the GNU General Public License (the file COPYRIGHT at the
- * top of the repository), WITHOUT ANY WARRANTY.
+ * distributed under the GNU General Public License, version 2 or (at your
+ * option) any later version (COPYRIGHT and licenses/GPL-2.0.txt at the top of
+ * the repository), WITHOUT ANY WARRANTY.
  */
 
 /*

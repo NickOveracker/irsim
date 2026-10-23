@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 // An interactive IRSIM session running in worker.js.
 //
 // Commands run one at a time, in order.  Output and analyzer calls arrive

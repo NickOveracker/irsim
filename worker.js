@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
 // IRSIM in a Web Worker.
 //
 // Session protocol (the web app, session.js):

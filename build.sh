@@ -1,4 +1,5 @@
 #!/bin/sh
+# SPDX-License-Identifier: GPL-2.0-or-later
 # Build IRSIM to WebAssembly (no Tcl, no X11 analyzer, no threads).  The analyzer is the
 # web one (analyzer/webana.c), and irsim/irsimweb.c adds an interactive session for the page.
 # Needs the Emscripten SDK on the PATH (source emsdk_env.sh). Writes irsim.js and irsim.wasm at the top, next to
