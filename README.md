@@ -116,3 +116,15 @@ x86-64 fail here. Fixing them turned up several real bugs, which are separate co
   with positions the `.sim` reader had converted from lambda to centimicrons, so none was ever found.
 * `bin_io.h`: the byte packing macros handle 1 to 4 bytes, but times are 8-byte `Ulong`, so `dumph` wrote half of
   each time and `readh` read 0 and rejected every dump ("incompatible or bad history dump"), natively too.
+
+## Licence
+
+IRSIM is distributed under the GNU General Public License, version 2 (the file `COPYRIGHT`); its source files carry
+Stanford University's notice of 1988 and 1990. This fork as a whole, including the web app (the HTML, JavaScript and CSS
+at the top), `build.sh`, `run-node.js` and the examples, is distributed under the same licence, at no charge, WITHOUT ANY
+WARRANTY. The module also contains the Emscripten runtime, under its own permissive licence
+(`licenses/emscripten-LICENSE`).
+
+As the licence asks, the files under `src/` that this fork changed or added carry a notice saying so, with the date and
+subject of each change. The app shows IRSIM's copyright, the absence of warranty and the terms for redistribution in its
+console when it starts. Keep the notices up to date with further changes.

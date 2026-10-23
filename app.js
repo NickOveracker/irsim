@@ -741,7 +741,7 @@ $("#top-menus").appendChild(menuBar([
         {label: "IRSIM upstream source", href: "https://github.com/RTimothyEdwards/irsim"},
         "-",
         {label: "IRSIM license (GPL 2)", href: "https://github.com/NickOveracker/irsim/blob/wasm/COPYRIGHT"},
-        {label: "Emscripten runtime license (MIT)", href: "https://github.com/emscripten-core/emscripten/blob/main/LICENSE"},
+        {label: "Emscripten runtime license (MIT)", href: "https://github.com/NickOveracker/irsim/blob/wasm/licenses/emscripten-LICENSE"},
         "-",
         {label: "This web app's source", href: "https://github.com/NickOveracker/irsim/tree/wasm"},
     ]],
@@ -749,8 +749,18 @@ $("#top-menus").appendChild(menuBar([
 
 window.addEventListener("resize", () => analyzer.draw());
 
+// The notice the GNU General Public License asks for when an interactive program starts:
+// copyright, no warranty, redistribution, and where the licence is.
+function announce() {
+    print("IRSIM 9.7, Copyright (C) 1988, 1990 Stanford University; changed for this WebAssembly build in 2026 (the " +
+        "changes are listed in the source, About > This web app's source).", "info");
+    print("IRSIM comes with ABSOLUTELY NO WARRANTY. It is free software: you may redistribute it under the terms of the " +
+        "GNU General Public License; About > IRSIM license shows a copy.", "info");
+}
+
 async function start() {
     refreshRecent();
+    announce();
     const name = new URLSearchParams(location.search).get("example");
     await loadExample(EXAMPLES[name] ? name : DEFAULT_EXAMPLE);
     home();
