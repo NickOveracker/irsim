@@ -11,6 +11,7 @@ import {FloatingWindow, topEdgeResizer, paneResizer} from "./floating-window.js"
 import {menuBar, closeMenus} from "./menu.js";
 import {ask, setHomeFocus} from "./dialog.js";
 import {readArchive, isArchive, stripCommonFolder, cleanPath, writeTarGz} from "./archive.js";
+import {receiveProject} from "./handoff.js";
 import {diskSupported, DiskStore, BrowserStore, recentProjects, reopen, forget} from "./storage.js";
 
 const $ = selector => document.querySelector(selector);
@@ -28,7 +29,12 @@ const EXAMPLES = {
     inverter: "Inverter",
     stixu_c_element: "C-element, Stixu's own IRSIM export",
     stixu_inverter: "Inverter, Stixu's own IRSIM export",
+    tut11a: {label: "4-bit counter, from Magic's tutorial 11", files: ["tut11a.sim", "tut11a.cmd", "counter.cmd", "README.txt", "LICENSE"],
+        cmd: "counter.cmd"},
+    openram_dff: {label: "OpenRAM's D flip-flop (TSMC 0.35 µm parameters)", files: ["dff.sim", "dff.cmd", "README.txt", "LICENSE"],
+        prm: "tsmc35.20.n98t.3.3"},
 };
+const exampleLabel = example => example.label || example;
 const DEFAULT_EXAMPLE = "full_adder";
 const BUILT_IN_PRMS = ["scmos100", "scmos30", "scmos35", "scmos50_3v", "scmos50_5v", "scmos60", "scmos1_6um", "scmos2um",
     "amiabn.80.n99z.5", "amic5.30.n98s.3.3", "amicwl.50.n97l.5", "hpcmos10.20.n98v.3.3", "hpcmos14.30.n9ae.3.3",
@@ -214,14 +220,15 @@ async function startSimulation() {
 
 let currentRun = null;
 
-async function loadProject(name, files, store = null) {
+async function loadProject(name, files, store = null, setup = {}) {
     files = store ? files.filter(f => f.path) : stripCommonFolder(files.filter(f => f.path));
     name = name.replace(/\.(zip|tar|tgz|tar\.gz|sim|cmd|prm)$/i, "").replace(/[^\w.-]+/g, "_") || "project";
     if(!files.length && !store) {
         print("No files to load.", "error");
         return false;
     }
-    project = {name, files, store, synced: new Map(), setup: defaultSetup(name, files)};
+    const defaults = defaultSetup(name, files);
+    project = {name, files, store, synced: new Map(), setup: {...defaults, prm: setup.prm || defaults.prm, cmd: setup.cmd || defaults.cmd}};
     document.title = `${name} · IRSIM`;
     print(`Opened ${name}: ${files.map(f => f.path).join(", ") || "no files yet"}`, "info");
     currentRun = startSimulation();
@@ -229,18 +236,23 @@ async function loadProject(name, files, store = null) {
     return true;
 }
 
+// An example is <name>.sim and <name>.cmd in examples/, or a folder, examples/<name>/, of the
+// files it lists, with the setup it gives (a built-in parameter file, the command file to run).
 async function loadExample(name) {
     statusEl.textContent = `Loading ${name}…`;
+    const example = EXAMPLES[name];
+    const paths = example.files ? example.files.map(f => [`examples/${name}/${f}`, f]) :
+        ["sim", "cmd"].map(ext => [`examples/${name}.${ext}`, `${name}.${ext}`]);
     const files = [];
-    for(const ext of ["sim", "cmd"]) {
-        const url = here(`examples/${name}.${ext}`);
+    for(const [path, file] of paths) {
+        const url = here(path);
         const response = await fetch(url);
         if(!response.ok) {
             throw new Error(`Couldn't load the example ${url}: HTTP ${response.status}`);
         }
-        files.push({path: `${name}.${ext}`, data: new Uint8Array(await response.arrayBuffer())});
+        files.push({path: file, data: new Uint8Array(await response.arrayBuffer())});
     }
-    await loadProject(name, files);
+    await loadProject(name, files, null, {prm: example.prm, cmd: example.cmd});
 }
 
 async function setupDialog() {
@@ -735,7 +747,7 @@ setHomeFocus(home);
 
 $("#top-menus").appendChild(menuBar([
     ["Project", projectMenu],
-    ["Examples", Object.entries(EXAMPLES).map(([name, label]) => ({label, action: () => attempt(() => loadExample(name))}))],
+    ["Examples", Object.entries(EXAMPLES).map(([name, example]) => ({label: exampleLabel(example), action: () => attempt(() => loadExample(name))}))],
     ["Windows", windowsMenu],
     ["About", [
         {label: "IRSIM (Open Circuit Design)", href: "https://opencircuitdesign.com/irsim/"},
@@ -761,10 +773,18 @@ function announce() {
 }
 
 async function start() {
+    const handed = receiveProject();
     refreshRecent();
     announce();
-    const name = new URLSearchParams(location.search).get("example");
-    await loadExample(EXAMPLES[name] ? name : DEFAULT_EXAMPLE);
+    // A project from another of the apps (Magic's Open in the IRSIM App), or an example.
+    const sent = await handed;
+    if(sent) {
+        print(`From the ${sent.from} app: ${sent.name}`, "info");
+        await loadProject(sent.name, sent.files, null, sent.setup);
+    } else {
+        const name = new URLSearchParams(location.search).get("example");
+        await loadExample(EXAMPLES[name] ? name : DEFAULT_EXAMPLE);
+    }
     home();
 }
 

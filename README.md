@@ -29,7 +29,8 @@ redirect there.
 | `analyzer.js` | The logic analyzer, after the Tk analyzer in `src/tcltk/irsim.tcl.in`. |
 | `tracemgr.js` | Manage Traces: the Tk "IRSIM node and vector lists" window. |
 | `menu.js`, `dialog.js`, `floating-window.js`, `archive.js`, `storage.js` | Menus, dialogs, windows, .zip/.tar.gz, project storage (shared with the Magic web app). |
-| `examples/` | Circuits from the Stixu stick-diagram editor (https://stixu.io): Magic-extracted netlists with command files, and two of Stixu's own IRSIM exports. |
+| `examples/` | Circuits from the Stixu stick-diagram editor (https://stixu.io): Magic-extracted netlists with command files, and two of Stixu's own IRSIM exports. Also, each in a folder with its licence and a README: the 4-bit counter from Magic's tutorial 11 (`tut11a/`), and OpenRAM's D flip-flop with its TSMC 0.35 µm parameters (`openram_dff/`). |
+| `handoff.js` | Receives a project from another of the web apps: Magic's Options > Open in the IRSIM App opens this page in a new tab and posts it the cell's `.sim` and the project's `.cmd` and `.prm` files (shared with the Magic and netgen web apps). |
 
 * **Console.** Every IRSIM command, typed as at the `irsim>` prompt, plus the Tcl front end's `w`/`watchnode`,
   `unwatchnode` and `watchtime`. **Stop** ends a command that runs too long: IRSIM starts again and replays the
