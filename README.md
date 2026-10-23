@@ -4,7 +4,7 @@ IRSIM 9.7 compiled to WebAssembly with [Emscripten](https://emscripten.org), and
 features of IRSIM's Tcl/Tk front end: an interactive console, the logic analyzer, and the node and vector lists.
 It has no Tcl interpreter and no threads, so it runs in a plain Web Worker and needs no special server headers.
 
-The app is at https://nickoveracker.github.io/irsim/ and is what this folder holds; IRSIM's own source, with its
+The app is at https://irsim.stixu.io/ and is what this folder holds; IRSIM's own source, with its
 original README and native build, is in `src/`.
 
 ## Building
